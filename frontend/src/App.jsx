@@ -3,14 +3,22 @@ import Hls from 'hls.js';
 import './App.css'; // Assuming your CSS is in App.css
 import IPTVPlayer from './components/IPTVPlayer'; 
 import Footer from './components/Footer';
-import StreamPlayer from './components/StreamPlayer';
+import HLSStream from './components/HLSStream';
+import Navbar from './components/Navbar';
+import Player from './components/Player';
 
 function App() {
   // --- State ---
   const [streams, setStreams] = useState([
     { url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', name: 'Mux Test Stream' },
     { url: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8', name: 'Sintel (Bitmovin)' },
+    // { url: 'https://www.youtube.com/watch?v=LLqU2gTZxiA&t=5151s', name: 'YouTube Stream'},
   ]);
+
+  const [youtubeStreams, setYoutubeStreams] = useState([
+    { url: 'https://www.youtube.com/watch?v=fO9e9jnhYK8', name: 'ISS Space Station' },
+    { url: 'https://www.youtube.com/watch?v=mhJRzQsLZGg', name: 'NASA Space Flight' },
+    ]);
 
   // Updated IPTV list
   const [iptvChannels, setIptvChannels] = useState([
@@ -516,12 +524,6 @@ function App() {
         logo: "⚽"
       },
       {
-        name: "CRTV ",
-        url: "https://vdo.panelstreaming.live:3058/stream/play.m3u8",
-        category: "Sports", // General
-        logo: "⚽"
-      },
-      {
         name: "CampusLore ",
         url: "https://linear-235.frequency.stream/dist/glewedtv/235/hls/master/playlist.m3u8",
         category: "Sports", // General
@@ -573,12 +575,6 @@ function App() {
         name: "DF1 ",
         url: "https://dbjwcot8t7nyd.cloudfront.net/out/v1/9d068a9428444b458324ad77b5a0a4b8/index.m3u8",
         category: "Motorsports", // Changed (Implied Motorsport/Racing focus)
-        logo: "⚽"
-      },
-      {
-        name: "DT Play (Deporte Total)  [Not 24/7]",
-        url: "https://tv.portalexpress.es:3044/live/dtplaylive.m3u8",
-        category: "Sports", // General
         logo: "⚽"
       },
       {
@@ -939,12 +935,6 @@ function App() {
         name: "MadeinBO TV ",
         url: "https://srvx1.selftv.video/dmchannel/live/playlist.m3u8",
         category: "Sports", // General
-        logo: "⚽"
-      },
-      {
-        name: "Marquee Sports Network",
-        url: "https://v1.thetvapp.to/hls/marquee-sports-network/index.m3u8",
-        category: "Baseball", // Changed (Cubs focused)
         logo: "⚽"
       },
       {
@@ -1500,12 +1490,6 @@ function App() {
         logo: "⚽"
       },
       {
-        name: "Türkmenistan Sport (406p) [Not 24/7]",
-        url: "https://alpha.tv.online.tm/hls/ch004.m3u8",
-        category: "Sports", // General
-        logo: "⚽"
-      },
-      {
         name: "UD Las Palmas TV  [Not 24/7]",
         url: "https://cdn318.fractalmedia.es/live319/hls/cudtv/high/index.m3u8",
         category: "Football", // Changed (Club Channel)
@@ -1763,6 +1747,7 @@ function App() {
   const getGridLayoutClass = () => {
     switch (currentLayout) {
       case 'grid': return 'grid-layout';
+      case 'three-by-three': return 'three-by-three-layout';
       case 'triple-main': return 'triple-main-layout';
       case 'side-by-side': return 'side-by-side-layout';
       case 'quad-stack': return 'quad-stack-layout';
@@ -1772,14 +1757,10 @@ function App() {
 
   // --- JSX ---
   return (
-    <div className="app-container">
-      <header>
-        <h1>TV Stream Mosaic</h1>
-        <div className="header-controls">
-          <span id="time">{time}</span>
-        </div>
-      </header>
 
+    <div className="app-container">
+      <Navbar/>
+  
       <div className="mosaic-container">
         <div id="videoGrid" className={`mosaic ${getGridLayoutClass()}`}>
           {/* Render Regular Streams */}
@@ -1793,7 +1774,7 @@ function App() {
             
             return (
 
-                <StreamPlayer
+                <HLSStream
                   key={`stream-${stream.url}-${index}`} // Use a stable key
                   stream={stream}
                   identifier={index} // Pass the index as identifier
@@ -1815,12 +1796,20 @@ function App() {
                 onToggleExpand={handleToggleExpand}
              />
           </div>
+          
+
+          <Player 
+            url="https://www.youtube.com/watch?v=fO9e9jnhYK8" 
+            className="stream-video" // Reuse your CSS class
+          />
+        
         </div>
       </div>
 
       {/* Pop-up Menus */}
        <div className={`layout-options ${showLayoutOptions ? 'show' : ''}`}>
          <div className="layout-option" onClick={() => changeLayout('grid')}>2x2 Grid</div>
+         <div className="layout-option" onClick={() => changeLayout('three-by-three')}>3x3 Grid</div>
          <div className="layout-option" onClick={() => changeLayout('triple-main')}>Main + 3</div>
          <div className="layout-option" onClick={() => changeLayout('side-by-side')}>Side by Side</div>
          <div className="layout-option" onClick={() => changeLayout('quad-stack')}>4 Stack</div>

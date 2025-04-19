@@ -54,19 +54,19 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
+  /* position: sticky; */
   top: 0;
   z-index: 20;
 }
 
 .mosaic {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   gap: 10px;
   padding: 10px;
   flex: 1;
-  background-color: #232323;
+  background-color: #1a1a1a;
   min-height: calc(100vh - 120px);
 }
 
@@ -236,6 +236,11 @@ footer {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
+}
+.three-by-three-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
 }
 
 .triple-main-layout {

@@ -11,7 +11,7 @@ import Hls from 'hls.js';
  */
 
 /**
- * @typedef {object} StreamPlayerProps
+ * @typedef {object} HLSStreamProps
  * @property {Stream} stream - The stream object containing url and name.
  * @property {number | string} identifier - A unique identifier for this player (e.g., the index from the map).
  * @property {boolean} isExpanded - Whether this player should be in fullscreen/expanded mode.
@@ -22,9 +22,9 @@ import Hls from 'hls.js';
 
 /**
  * Renders a single HLS video stream player.
- * @param {StreamPlayerProps} props
+ * @param {HLSStreamProps} props
  */
-export default function StreamPlayer({
+export default function HLSStream({
   stream,
   identifier,
   isExpanded,
