@@ -6,6 +6,9 @@ import Footer from './components/Footer';
 import HLSStream from './components/HLSStream';
 import Navbar from './components/Navbar';
 import Player from './components/Player';
+import {fetchAllChannels} from './components/api'; 
+import Container from './components/Container'; 
+import SelectionScreen from './components/SelectionScreen'; 
 
 function App() {
   // --- State ---
@@ -21,7 +24,7 @@ function App() {
     ]);
 
   // Updated IPTV list
-  const [iptvChannels, setIptvChannels] = useState([
+  /*const [iptvChannels, setIptvChannels] = useState([
       {
         name: "Action Hollywood Movies",
         url: "https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg01076-lightningintern-actionhollywood-samsungnz/playlist.m3u8",
@@ -1579,9 +1582,20 @@ function App() {
         category: "Sports", // General Network
         logo: "⚽"
       }
-  ]);
+  ]);*/
 
-
+  const [iptvChannels, setIptvChannels] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorLoading, setErrorLoading] = useState(null);
+  // const [iptvChannels, setIptvChannels] = useState([
+  //   {
+  //     name: "Glory Kickboxing ",
+  //     url: "https://6f972d29.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0dsb3J5S2lja2JveGluZ19ITFM/playlist.m3u8",
+  //     category: "Combat Sports", // Changed
+  //     logo: "⚽"
+  //   }
+  // ]);
+  
   const [currentLayout, setCurrentLayout] = useState('grid');
   
   const [showLayoutOptions, setShowLayoutOptions] = useState(false);
@@ -1678,7 +1692,30 @@ function App() {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  // Fetch channels when component mounts
+  useEffect(() => {
+    const loadChannels = async () => {
+      setIsLoading(true); // Ensure loading is true when fetch starts
+      setErrorLoading(null); // Clear previous errors
+      try {
+        const channels = await fetchAllChannels();
+        console.log("Fetched channels:", channels.length);
+        // Ensure you're setting an array, even if the fetch returns nothing
+        setIptvChannels(Array.isArray(channels) ? channels : []);
+      } catch (error) {
+        console.error("Failed to fetch channels:", error);
+        setErrorLoading("Failed to load channels. Please try again later."); // Set error message
+        setIptvChannels([]); // Set empty array on error
+      } finally {
+        setIsLoading(false); // <-- Set loading to false when fetch completes (success or error)
+      }
+    };
+
+    loadChannels();
+  }, []); // Empty dependency array: runs once on mount
+  
   // --- Handlers ---
+  
   const handleToggleLayoutOptions = () => {
     setShowLayoutOptions(prev => !prev);
   };
@@ -1760,11 +1797,13 @@ function App() {
 
     <div className="app-container">
       <Navbar/>
-  
+      {/* <ChannelList/> */}
+
       <div className="mosaic-container">
         <div id="videoGrid" className={`mosaic ${getGridLayoutClass()}`}>
           {/* Render Regular Streams */}
-          {streams.map((stream, index) => {
+          
+          {/* {streams.map((stream, index) => {
             const isExpanded = expandedVideoIdentifier === index;
             const hasAudio = activeAudioIdentifier === index;
             const audioButtonIcon = hasAudio ? "🔇" : "🔊";
@@ -1780,15 +1819,28 @@ function App() {
                   identifier={index} // Pass the index as identifier
                   isExpanded={expandedVideoIdentifier === index}
                   hasAudio={activeAudioIdentifier === index}
-                  onToggleAudio={handleToggleAudio} // Pass the handler from App
+                  onToggleAudio={handleToggleAudio}   // Pass the handler from App
                   onToggleExpand={handleToggleExpand} // Pass the handler from App
                 />
             );
-          })}
+          })} */}
 
+          <Container>
+            <SelectionScreen>
+            </SelectionScreen>
+          </Container>
           {/* IPTV Player Container & Component */}
+          {isLoading ? (
+            <div className="loading-message">Loading IPTV channels...</div>
+          ) : errorLoading ? (
+            <div className="error-message">{errorLoading}</div>
+          ) : iptvChannels.length === 0 ? (
+            <div className="no-channels-message">No IPTV channels available.</div>
+          ) : null}
+          {/* IPTV Player */}
+
           <div ref={iptvPlayerContainerRef} className="video-container-wrapper"> {/* Added wrapper for ref */}
-            <IPTVPlayer
+            <IPTVPlayer   
                 channels={iptvChannels}
                 isExpanded={expandedVideoIdentifier === 'iptv'}
                 hasAudio={activeAudioIdentifier === 'iptv'}

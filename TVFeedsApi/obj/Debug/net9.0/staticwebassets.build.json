@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "lqXxYH/EAmUrxkpUGOA66tRKX3Sb6y5pV/hxiWtjTRI=",
+  "Source": "TVFeedsApi",
+  "BasePath": "_content/TVFeedsApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

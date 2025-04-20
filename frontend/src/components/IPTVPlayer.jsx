@@ -58,24 +58,26 @@ export default function IPTVPlayer({
 }) {
 
   // --- State ---
-  // CORRECT useState initializer function
   const [currentIptvChannel, setCurrentIptvChannel] = useState(() => {
-    console.log("Calculating initial channel. Prop received:", initialChannel);
-    // 1. Prioritize the prop if it's explicitly passed and not undefined
+    console.log("Calculating initial channel. Prop received:", initialChannel); // Log the PROP value
+
+    // 1. Prioritize the prop if it's explicitly passed (could be null, that's valid)
     if (initialChannel !== undefined) {
-        console.log("Using provided initialChannel:", initialChannel);
-        // Ensure even a passed null is handled correctly
-        return initialChannel === null ? null : initialChannel;
+        console.log("Using provided initialChannel prop:", initialChannel);
+        return initialChannel; // Directly return the prop value (null is okay)
     }
-    // 2. If prop wasn't provided (is undefined), try getting random
-    console.log("initialChannel prop undefined, attempting random selection.");
-    const random = getRandomChannel(channels); // Pass the 'channels' prop
+
+    // 2. If prop wasn't provided (was undefined), try getting random
+    console.log("initialChannel prop was undefined, attempting random selection.");
+    // Ensure 'channels' prop is used here, not a potentially undefined state variable
+    const random = getRandomChannel(channels);
     if (random) {
         console.log("Using random channel:", random);
         return random;
     }
+
     // 3. Fallback if channels is empty or random fails
-    console.log("Could not select random channel, falling back to null.");
+    console.log("Could not select random channel (or channels empty), falling back to null.");
     return null;
   });
 
