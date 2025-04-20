@@ -9,6 +9,9 @@ import Player from './components/Player';
 import {fetchAllChannels} from './components/api'; 
 import Container from './components/Container'; 
 import SelectionScreen from './components/SelectionScreen'; 
+import Iframe from 'react-iframe'
+import TVNZ from './components/TVNZ'; 
+import TVGarden from './components/TVGarden';
 
 function App() {
   // --- State ---
@@ -1825,10 +1828,34 @@ function App() {
             );
           })} */}
 
-          <Container>
+          {/* <Container>
             <SelectionScreen>
             </SelectionScreen>
+          </Container> */}
+
+          {/* <Container>
+            <Iframe src="https://www.iptvcat.com/" 
+                    title="IPTV Cat"
+                    width="100%"
+                    height="100%">
+            </Iframe>
+          </Container> */}
+
+          <Container>
+            <div className="embed-container">
+              <TVGarden
+              src="https://tv.garden/"/>
+            </div>
           </Container>
+
+          {/* <Container>
+            <Iframe src="https://thetvapp.to/" 
+                    title="The TV App"
+                    width="100%"
+                    height="100%"> 
+            </Iframe>
+          </Container> */}
+
           {/* IPTV Player Container & Component */}
           {isLoading ? (
             <div className="loading-message">Loading IPTV channels...</div>
@@ -1851,9 +1878,13 @@ function App() {
           
 
           <Player 
-            url="https://www.youtube.com/watch?v=fO9e9jnhYK8" 
+            url="https://www.youtube.com/watch?v=fO9e9jnhYK8" //url="https://www.youtube.com/watch?v=fO9e9jnhYK8"
             className="stream-video" // Reuse your CSS class
           />
+
+          <Container>
+            <TVNZ/>
+          </Container>
         
         </div>
       </div>

@@ -14,6 +14,7 @@ function SelectionScreen() {
             <p>Select an option below:</p>
 
             <button onClick={() => onSelect('Netflix')}>Netflix</button>
+            <button onClick={() => onSelect('TVNZ+')}>Netflix</button>
             <button onClick={() => onSelect('IPTV')}>IPTV</button>
             <button onClick={() => onSelect('Youtube')}>Youtube</button>
             <button onClick={() => onSelect('Twitch')}>Twitch</button>
