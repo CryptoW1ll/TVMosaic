@@ -1,25 +1,89 @@
-import React from 'react';
-import '../App.css';
+import React, { useState } from 'react';
+import '../App.css'; // Create basic styles
 
+function SelectionScreen({ slotId, onSelect, initialMessage }) {
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [hlsUrl, setHlsUrl] = useState('');
+  const [hlsName, setHlsName] = useState('');
 
-function onSelect(option) {
-    console.log(`Selected option: ${option}`);
-    // Here you can add logic to handle the selected option, like navigating to a different screen or loading content.
-    alert(`You selected: ${option}`);
-}
+  const handleSelect = (type) => {
+    if (type === 'youtube') {
+      if (youtubeUrl.trim()) {
+        try {
+            new URL(youtubeUrl); // Basic validation
+            onSelect(slotId, 'youtube', { url: youtubeUrl.trim() });
+        } catch {
+            alert('Please enter a valid YouTube URL.');
+        }
+      } else {
+        alert('Please enter a YouTube URL.');
+      }
+    } else if (type === 'hls') {
+      if (hlsUrl.trim()) {
+         try {
+            new URL(hlsUrl); // Basic validation
+            onSelect(slotId, 'hls', { url: hlsUrl.trim(), name: hlsName.trim() || 'HLS Stream' });
+         } catch {
+             alert('Please enter a valid HLS URL (.m3u8).');
+         }
+      } else {
+        alert('Please enter an HLS URL.');
+      }
+    } else {
+      // For types without input data (IPTV, TVGarden)
+      onSelect(slotId, type);
+    }
+  };
 
-function SelectionScreen() {
-    return (
-        <div className="selection-screen" > 
-            <p>Select an option below:</p>
+  return (
+    <div className="selection-screen">
+      <h4>Select Content for Slot {slotId + 1}</h4>
+        {initialMessage && <p className="selection-message">{initialMessage}</p>}
 
-            <button onClick={() => onSelect('Netflix')}>Netflix</button>
-            <button onClick={() => onSelect('TVNZ+')}>Netflix</button>
-            <button onClick={() => onSelect('IPTV')}>IPTV</button>
-            <button onClick={() => onSelect('Youtube')}>Youtube</button>
-            <button onClick={() => onSelect('Twitch')}>Twitch</button>
-            <button onClick={() => onSelect('Rumble')}>Rumble</button>
+      <div className="selection-options">
+         {/* Option 1: IPTV */}
+        <button onClick={() => handleSelect('iptv')} className="selection-button">
+          📺 IPTV Channels
+        </button>
+
+        {/* Option 2: TV Garden */}
+        <button onClick={() => handleSelect('tvgarden')} className="selection-button">
+          🌳 TV Garden
+        </button>
+
+        {/* Option 3: YouTube */}
+        <div className="selection-input-group">
+          <input
+            type="text"
+            placeholder="YouTube URL"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+          />
+          <button onClick={() => handleSelect('youtube')} className="selection-button small">▶️ Load YouTube</button>
         </div>
-    );
+
+        {/* Option 4: HLS Stream */}
+        <div className="selection-input-group">
+          <input
+            type="text"
+            placeholder="HLS URL (.m3u8)"
+            value={hlsUrl}
+            onChange={(e) => setHlsUrl(e.target.value)}
+            className="hls-url-input"
+          />
+           <input
+            type="text"
+            placeholder="Name (Optional)"
+            value={hlsName}
+            onChange={(e) => setHlsName(e.target.value)}
+            className="hls-name-input"
+          />
+          <button onClick={() => handleSelect('hls')} className="selection-button small">📡 Load HLS</button>
+        </div>
+
+      </div>
+    </div>
+  );
 }
+
 export default SelectionScreen;
