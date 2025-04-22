@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Iframe from 'react-iframe';
 import '../App.css'; 
 
 function TVGarden({ src, title }) {
@@ -9,21 +10,21 @@ function TVGarden({ src, title }) {
   };
 
   // Dynamically create the wrapper class string
-  const wrapperClassName = `embed-iframe-wrapper ${isMaximized ? 'maximized' : ''}`;
+  //const wrapperClassName = `embed-iframe-wrapper ${isMaximized ? 'maximized' : ''}`;
 
   return (
     // Use a div with the calculated className
-    <div className={wrapperClassName}>
-      <iframe
+    <div className="video-container">
+      <Iframe
         src={src}
         title={title}
-        allowFullScreen // Keep this
-        // Width and height are controlled by CSS via the wrapper
+        width="100%"
+        height="100%"
       />
       {/* Use a button with its className */}
-      <button className="embed-maximize-button" onClick={toggleMaximize}>
+      {/* <button className="embed-maximize-button" onClick={toggleMaximize}>
         {isMaximized ? 'Minimize' : 'Maximize'}
-      </button>
+      </button> */}
     </div>
   );
 }
