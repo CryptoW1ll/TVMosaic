@@ -1,0 +1,403 @@
+/* File 3: src/iptv.css */
+/* Description: CSS styles specific to the IPTVPlayer component */
+
+/* --- IPTV Player Container Base --- */
+.iptv-player {
+  position: relative; /* Needed for absolute positioning of children */
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Prevent sidebar content from overflowing */
+  background-color: #000; /* Default background */
+}
+
+.iptv-player video {
+  display: block; /* Remove extra space below video */
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Or 'cover', depending on desired behavior */
+}
+
+/* --- Status Overlay (Loading/Error) --- */
+.status-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 10;
+  pointer-events: none; /* Allow clicks through to video/controls below if needed */
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 4px solid #fff;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #ffdddd;
+  background-color: rgba(180, 0, 0, 0.8);
+  padding: 10px 15px;
+  border-radius: 4px;
+  text-align: center;
+  max-width: 80%;
+}
+
+/* --- Info Overlay (Playing Channel Name) --- */
+.iptv-info {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 15px;
+  font-size: 0.9em;
+  z-index: 15; /* Above video, below controls */
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  white-space: nowrap;
+  max-width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.iptv-info.show {
+  opacity: 1;
+}
+
+.iptv-info.error {
+  background-color: rgba(180, 0, 0, 0.8);
+  color: #ffdddd;
+}
+.iptv-info.warning {
+  background-color: rgba(200, 150, 0, 0.8);
+  color: #fff;
+}
+
+
+/* --- Video Controls Bar --- */
+.iptv-player .video-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0));
+  z-index: 25; /* Above video, info overlay, and sidebar */
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Hide controls on hover (optional, common pattern) */
+.iptv-player:not(:hover):not(.sidebar-open) .video-controls {
+   /* opacity: 0; */ /* Uncomment to hide controls unless hovering */
+}
+
+.iptv-player .video-controls .stream-title {
+   flex-grow: 1;
+   text-align: center;
+   margin: 0 10px;
+   color: #eee;
+   font-size: 0.9em;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   transition: opacity 0.3s ease; /* Transition for hiding */
+}
+/* Hide title completely when sidebar is open and player isn't expanded */
+.iptv-player.sidebar-open:not(.expanded) .stream-title {
+    opacity: 0;
+    pointer-events: none;
+}
+/* Center title properly when expanded (no sidebar toggle) */
+.iptv-player.expanded .stream-title {
+   text-align: center;
+   /* flex-grow might need adjustment depending on button widths */
+}
+
+
+.iptv-player .video-controls .control-buttons {
+    display: flex;
+    gap: 8px; /* Space between buttons */
+    flex-shrink: 0; /* Prevent buttons shrinking */
+}
+
+.iptv-player .control-btn {
+    background: rgba(50, 50, 50, 0.7);
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1em; /* Base icon size */
+    line-height: 1; /* Ensure icon vertical alignment */
+    display: inline-flex; /* Align icon nicely */
+    align-items: center;
+    justify-content: center;
+}
+
+.iptv-player .control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.iptv-player .control-btn:hover:not(:disabled) {
+    background: rgba(80, 80, 80, 0.9);
+}
+
+.iptv-player .control-btn svg {
+  vertical-align: middle; /* Helps sometimes */
+}
+
+/* Specific button styling if needed */
+.iptv-player .sidebar-toggle-btn {
+    /* Position is handled by flexbox order */
+}
+.iptv-player .close-btn {
+    /* Maybe slightly different color? */
+    /* background: rgba(100, 50, 50, 0.7); */
+}
+.iptv-player .close-btn:hover:not(:disabled) {
+    /* background: rgba(130, 60, 60, 0.9); */
+}
+
+
+/* --- Sidebar Styles --- */
+.iptv-sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px; /* Sidebar width */
+  max-width: 80%; /* Max width on small screens */
+  background-color: rgba(30, 30, 30, 0.97); /* Slightly more opaque */
+  color: #eee;
+  z-index: 20; /* Below controls (25), above video/overlay (10/15) */
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%); /* Start hidden */
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); /* Shadow */
+  contain: layout style; /* Performance optimization */
+}
+
+.iptv-sidebar.open {
+  transform: translateX(0); /* Slide in */
+}
+
+/* Header inside Sidebar */
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: rgba(0, 0, 0, 0.3); /* Header background */
+  flex-shrink: 0; /* Prevent shrinking */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.sidebar-close-btn { /* Close button inside sidebar header */
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 1.3em;
+    padding: 5px;
+    cursor: pointer;
+    line-height: 1;
+}
+.sidebar-close-btn:hover {
+    color: white;
+}
+
+/* Sections within Sidebar */
+.sidebar-section {
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0; /* Prevent shrinking */
+}
+.sidebar-section:last-child {
+    border-bottom: none; /* Remove border from last section (usually list) */
+}
+
+/* Category Filter Dropdown */
+.iptv-category-filter label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #bbb;
+}
+.iptv-category-filter select {
+    width: 100%;
+    padding: 8px 10px;
+    background-color: #444;
+    color: white;
+    border: 1px solid #666;
+    border-radius: 4px;
+    appearance: none; /* Basic custom styling */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23BBB%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right .7em top 50%;
+    background-size: .65em auto;
+    padding-right: 2em; /* Space for arrow */
+}
+
+/* Search Input */
+.iptv-search label.sr-only { /* For accessibility */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+.iptv-search input {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: #444;
+  border: 1px solid #666;
+  border-radius: 4px;
+  box-sizing: border-box; /* Include padding in width */
+  color: white;
+}
+.iptv-search input::placeholder {
+    color: #aaa;
+}
+
+/* Channel List Container */
+.iptv-channel-list-wrapper.sidebar-section {
+  flex-grow: 1; /* Allow list to take remaining space */
+  overflow-y: auto; /* Enable vertical scrolling */
+  padding: 0; /* Remove padding, apply to buttons */
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: #666 #333;
+}
+.iptv-channel-list-wrapper.sidebar-section::-webkit-scrollbar {
+    width: 8px;
+}
+.iptv-channel-list-wrapper.sidebar-section::-webkit-scrollbar-track {
+    background: #333;
+}
+.iptv-channel-list-wrapper.sidebar-section::-webkit-scrollbar-thumb {
+    background-color: #666;
+    border-radius: 4px;
+    border: 2px solid #333;
+}
+
+/* Individual Channel Buttons in List */
+.iptv-channel-select {
+  display: flex;
+  flex-direction: column;
+}
+
+.iptv-channel-btn {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  padding: 8px 15px; /* Padding inside button */
+  border: none;
+  background-color: transparent;
+  color: #eee;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Subtle separator */
+  transition: background-color 0.15s ease;
+  overflow: hidden; /* Prevent content spill */
+}
+.iptv-channel-btn:last-child {
+    border-bottom: none;
+}
+
+.iptv-channel-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle hover */
+}
+
+.iptv-channel-btn.active {
+  background-color: #007bff; /* Highlight active channel */
+  color: white;
+  font-weight: 500; /* Slightly bolder */
+}
+.iptv-channel-btn.active:hover {
+    background-color: #0056b3; /* Darker active hover */
+}
+
+.iptv-channel-btn .channel-logo-small {
+  width: 24px; /* Logo size */
+  height: 24px;
+  margin-right: 10px;
+  object-fit: contain; /* Prevent distortion */
+  flex-shrink: 0; /* Don't shrink logo */
+  /* Make dark logos visible on dark background */
+  /* filter: brightness(0) invert(1); */ /* Removed: Might look bad for some logos */
+  background-color: rgba(255, 255, 255, 0.1); /* Add subtle background if logo is transparent */
+  border-radius: 2px; /* Slightly round corners */
+}
+/* Remove background/filter for active channel logo if needed */
+.iptv-channel-btn.active .channel-logo-small {
+    /* filter: none; */
+    background-color: transparent;
+}
+
+
+.iptv-channel-btn .channel-name {
+  white-space: nowrap; /* Prevent wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis (...) */
+  flex-grow: 1; /* Allow name to take space */
+}
+
+/* Message for empty list states */
+.no-results {
+    display: block;
+    padding: 20px 15px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+
+/* --- Expanded State --- */
+/* Hide sidebar toggle when player is expanded */
+.iptv-player.expanded .sidebar-toggle-btn {
+    display: none;
+}
+/* Sidebar itself is conditionally rendered via !isExpanded in JSX */
+
+
+/* --- Container Interaction with Sidebar (Optional) --- */
+/* If you wanted the main video content to push over instead of overlay: */
+/*
+.iptv-player.sidebar-open video {
+   margin-left: 280px; // Same as sidebar width
+   width: calc(100% - 280px);
+}
+.iptv-player.sidebar-open .video-controls {
+   left: 280px; // Same as sidebar width
+}
+// etc. - This requires more complex layout adjustments.
+*/

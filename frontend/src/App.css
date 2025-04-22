@@ -107,7 +107,7 @@ header {
   object-fit: cover;
 }
 
-.video-controls {
+/* .video-controls {
   position: absolute;
   top: 0;
   left: 0;
@@ -118,7 +118,7 @@ header {
   justify-content: space-between;
   opacity: 0;
   transition: opacity 0.3s;
-}
+} */
 
 .video-container:hover .video-controls {
   opacity: 1;
@@ -133,18 +133,6 @@ header {
   gap: 10px;
 }
 
-.control-btn {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #333;
-  border: 1px solid #555;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
 
 .control-btn:hover {
   background: #444;
