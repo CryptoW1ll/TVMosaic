@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TVFeedsApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c22621bb47f6b41b910b3d38fa0993d3bbbe75cb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+24b2ba8cc5d022d818864fb397535e904af979a7")]
 [assembly: System.Reflection.AssemblyProductAttribute("TVFeedsApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TVFeedsApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
