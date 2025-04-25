@@ -1,4 +1,8 @@
-const API_BASE_URL = 'http://localhost:5125/api/Channel';
+//const API_BASE_URL = 'http://localhost:5125/api/Channel'; //const API_BASE_URL = `${process.env.REACT_APP_API_URL}/api/Channel`;
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5125'}/api/Channel`;
+//const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/Channel`;
+
+
 
 // Common fetch handler
 async function handleRequest(url, options = {}) {
@@ -15,14 +19,15 @@ async function handleRequest(url, options = {}) {
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       throw new Error(
-        errorData?.message || 
-        `HTTP error! status: ${response.status}`
+        errorData?.message ||
+        errorData.title || 
+        `Request failed with status ${response.status}` 
       );
     }
 
     return await response.json();
   } catch (error) {
-    console.error(`API request failed: ${error.message}`);
+    console.error(`API request to ${url} failed:`, error.message);
     throw error; // Re-throw for component-level handling
   }
 }
@@ -42,5 +47,12 @@ export const createChannel = async (channelData) => {
   return handleRequest(API_BASE_URL, {
     method: 'POST',
     body: JSON.stringify(channelData)
+  });
+};
+
+// delete channel
+export const deleteChannel = async (id) => {
+  return handleRequest(`${API_BASE_URL}/${id}`, {
+    method: 'DELETE'
   });
 };
