@@ -20,7 +20,7 @@ import ReactPlayer from 'react-player';
 
 const INITIAL_SLOT_COUNT = 4; // Define how many grid slots initially
 
-function App() {
+function App1() {
     // --- State ---
 
     // State for each grid slot's content
@@ -585,4 +585,4 @@ function App() {
     );
 }
 
-export default App;
+export default App1;

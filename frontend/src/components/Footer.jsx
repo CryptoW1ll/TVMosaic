@@ -1,5 +1,5 @@
-import React from 'react';
-import '../App.css'; // Make sure path is correct relative to Footer.js
+import React, { useEffect, useState } from 'react';
+import '../Footer.css'; // Make sure path is correct relative to Footer.js
 
 // Define expected props for clarity (optional but good practice)
 /**
@@ -22,6 +22,15 @@ export default function Footer({
   onToggleStreamsMenu,
   onMuteAll
 }) {
+
+  const [time, setTime] = useState(() => new Date().toLocaleTimeString());
+
+
+  // Clock Update
+    useEffect(() => {
+        const timerId = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
+        return () => clearInterval(timerId);
+    }, []);
 
   return (
     <footer>
