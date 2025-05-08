@@ -86,7 +86,7 @@ function DynamicGrid({ gridLayout, screenCount, handleSelect, slots }) {
             }}
           >
             {slots[index]?.type === "iptv" ? (
-              <IPTVPlayer data={slots[index].data} /> // show IPTV if selected
+              <IPTVPlayer data={slots[index].data} /> 
             ) : (
               <SelectionScreen onSelect={(slotId, type, data) => handleSelect(index, type, data)} />
             )}
