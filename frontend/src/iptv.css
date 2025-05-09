@@ -29,7 +29,7 @@
   align-items: center;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 10;
-  pointer-events: none; /* Allow clicks through to video/controls below if needed */
+  //pointer-events: none; /* Allow clicks through to video/controls below if needed */
 }
 
 .spinner {
@@ -401,3 +401,19 @@
 }
 // etc. - This requires more complex layout adjustments.
 */
+
+/* Buttons */
+.delete-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  z-index: 100; /* Ensure it's above other elements */
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
+}

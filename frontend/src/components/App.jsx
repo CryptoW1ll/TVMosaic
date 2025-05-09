@@ -76,6 +76,7 @@ function DynamicGrid({ gridLayout, screenCount, handleSelect, slots }) {
 
   return (
     <div className="flex-1 h-screen">
+      {/* Mobile grid (sm:hidden) */}
       <div className="sm:hidden grid grid-cols-1 gap-2 p-2 h-full w-full">
         {Array.from({ length: screenCount }).map((_, index) => (
           <div
@@ -86,7 +87,7 @@ function DynamicGrid({ gridLayout, screenCount, handleSelect, slots }) {
             }}
           >
             {slots[index]?.type === "iptv" ? (
-              <IPTVPlayer data={slots[index].data} /> 
+              <IPTVPlayer data={slots[index].data} />
             ) : (
               <SelectionScreen onSelect={(slotId, type, data) => handleSelect(index, type, data)} />
             )}
@@ -94,6 +95,7 @@ function DynamicGrid({ gridLayout, screenCount, handleSelect, slots }) {
         ))}
       </div>
 
+      {/* Larger grid (sm:grid, md:grid-cols-2, lg:grid-cols-3, etc.) */}
       <div
         className="hidden sm:grid gap-4 p-4 h-full w-full"
         style={{
@@ -123,5 +125,6 @@ function DynamicGrid({ gridLayout, screenCount, handleSelect, slots }) {
     </div>
   );
 }
+
 
 export default App;

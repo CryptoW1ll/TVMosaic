@@ -18,12 +18,6 @@
       "logo": "📰"
     },
     {
-      "name": "Bounty",
-      "url": "https://bountyfilms-bounty-1-nz.samsung.wurl.tv/playlist.m3u8",
-      "category": "Movies",
-      "logo": "🎬"
-    },
-    {
       "name": "CineView",
       "url": "https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg01076-lightningintern-rialto-samsungnz/playlist.m3u8",
       "category": "Movies",
@@ -46,12 +40,6 @@
       "url": "https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg00219-gunpowdersky-dustintlnz-samsungnz/playlist.m3u8",
       "category": "Sci-Fi",
       "logo": "👽"
-    },
-    {
-      "name": "EuroNews",
-      "url": "https://euronews-euronews-world-1-nz.samsung.wurl.tv/playlist.m3u8",
-      "category": "News",
-      "logo": "📰"
     },
     {
       "name": "GB News",
@@ -445,12 +433,7 @@
       "category": "Sports",
       "logo": "⚽"
     },
-    {
-      "name": "Bellator MMA",
-      "url": "http://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/5ebc8688f3697d00072f7cf8/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c26f5a6-30d3-11ef-9cf5-e9ddff8ff496&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&serverSideAds=false&sid=0e97a69e-3355-4217-b6fb-8952f0ad1803",
-      "category": "Combat Sports",
-      "logo": "⚽"
-    },
+   
     {
       "name": "Billiard TV ",
       "url": "https://1621590671.rsc.cdn77.org/HLS/BILLIARDTV.m3u8",
@@ -469,12 +452,7 @@
       "category": "Sports",
       "logo": "⚽"
     },
-    {
-      "name": "CBS Sports HQ",
-      "url": "http://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/5e9f2c05172a0f0007db4786/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c27b8f5-30d3-11ef-9cf5-e9ddff8ff496&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&serverSideAds=false&sid=3a15356b-8467-4ae7-b2f6-9c8467fcf41d",
-      "category": "Sports",
-      "logo": "⚽"
-    },
+   
     {
       "name": "CBS Sports Network USA",
       "url": "http://fl2.moveonjoy.com/CBS_SPORTS_NETWORK/index.m3u8",
@@ -514,12 +492,6 @@
     {
       "name": "Champion TV ",
       "url": "https://canal.mediaserver.com.co/live/ChampionTv.m3u8",
-      "category": "Sports",
-      "logo": "⚽"
-    },
-    {
-      "name": "Claro Sports Chile",
-      "url": "https://stitcher-ipv4.pluto.tv/v1/stitch/embed/hls/channel/6320d80a66666000086712d7livestitch/master.m3u8?advertisingId={PSID}&appVersion=unknown&deviceDNT={TARGETOPT}&deviceId={PSID}&deviceLat=0&deviceLon=0&deviceMake=samsung&deviceModel=samsung&deviceType=samsung-tvplus&deviceVersion=unknown&embedPartner=samsung-tvplus&profileFloor=&profileLimit=&profilesFromStream=true&samsung_app_domain={APP_DOMAIN}&samsung_app_name={APP_NAME}&us_privacy=1YNY",
       "category": "Sports",
       "logo": "⚽"
     },
@@ -683,12 +655,6 @@
       "name": "Fast Sports",
       "url": "http://stream01.vnet.am/Channel_131/index.m3u8",
       "category": "Sports",
-      "logo": "⚽"
-    },
-    {
-      "name": "Fight",
-      "url": "http://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/5812b0f2237a6ff45d16c3f9/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c28ca64-30d3-11ef-9cf5-e9ddff8ff496&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&serverSideAds=false&sid=5722f4bc-fbe1-409f-ad8f-4559e5ebda2f",
-      "category": "Combat Sports",
       "logo": "⚽"
     },
     {
@@ -980,12 +946,6 @@
       "logo": "⚽"
     },
     {
-      "name": "NFL Channel",
-      "url": "http://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/5ced7d5df64be98e07ed47b6/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2a5105-30d3-11ef-9cf5-e9ddff8ff496&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&serverSideAds=false&sid=6477ef85-3680-442c-94d8-27197903b1f6",
-      "category": "Football",
-      "logo": "⚽"
-    },
-    {
       "name": "NFL Network",
       "url": "http://fl2.moveonjoy.com/NFL_NETWORK/index.m3u8",
       "category": "Football",
@@ -1028,18 +988,6 @@
       "logo": "⚽"
     },
     {
-      "name": "PBR RidePass",
-      "url": "http://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/60d39387706fe50007fda8e8/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2a9f21-30d3-11ef-9cf5-e9ddff8ff496&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&serverSideAds=false&sid=f7275d4e-aa8e-4e8d-9d5e-6a5665bf8190",
-      "category": "Sports",
-      "logo": "⚽"
-    },
-    {
-      "name": "PGA Tour",
-      "url": "http://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/5de94dacb394a300099fa22a/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2ac630-30d3-11ef-9cf5-e9ddff8ff496&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&serverSideAds=false&sid=6c2b7359-0375-4f34-996b-4fb9429ead78",
-      "category": "Golf",
-      "logo": "⚽"
-    },
-    {
       "name": "PTV Sports",
       "url": "http://121.91.61.106:8000/play/a00l/index.m3u8",
       "category": "Sports",
@@ -1058,24 +1006,6 @@
       "logo": "⚽"
     },
     {
-      "name": "Pluto TV Deportes ",
-      "url": "https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5dcde07af1c85b0009b18651/master.m3u8?advertisingId=&appName=web&appVersion=5.14.0-0f5ca04c21649b8c8aad4e56266a23b96d73b83a&app_name=web&clientDeviceType=0&clientID=6fbead95-26b1-415d-998f-1bdef62d10be&clientModelNumber=na&deviceDNT=false&deviceId=6fbead95-26b1-415d-998f-1bdef62d10be&deviceLat=19.4358&deviceLon=-99.1441&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=88.0.4324.150&marketingRegion=VE&serverSideAds=false&sessionID=b8e5a857-714a-11eb-b532-0242ac110002&sid=b8e5a857-714a-11eb-b532-0242ac110002&userId=",
-      "category": "Sports",
-      "logo": "⚽"
-    },
-    {
-      "name": "Pluto TV Lucha Libre AAA ",
-      "url": "https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5c01df1759ee03633e7b272c/master.m3u8?advertisingId=&appName=web&appStoreUrl=&appVersion=DNT&app_name=&architecture=&buildVersion=&deviceDNT=0&deviceId=5c01df1759ee03633e7b272c&deviceLat=&deviceLon=&deviceMake=web&deviceModel=web&deviceType=web&deviceVersion=DNT&includeExtendedEvents=false&marketingRegion=US&serverSideAds=false&sid=971&terminate=false&userId=",
-      "category": "Combat Sports",
-      "logo": "⚽"
-    },
-    {
-      "name": "Pluto TV Sports",
-      "url": "http://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/56340779a738201b4ccfeac9/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2b3b63-30d3-11ef-9cf5-e9ddff8ff496&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&serverSideAds=false&sid=8673a43c-58ba-48b3-8db5-75986abb01b9",
-      "category": "Sports",
-      "logo": "⚽"
-    },
-    {
       "name": "Poker Night in America ",
       "url": "https://d2njbreu8qyfxo.cloudfront.net/scheduler/scheduleMaster/216.m3u8",
       "category": "Poker",
@@ -1084,12 +1014,6 @@
     {
       "name": "Poker TV ",
       "url": "https://hls.pokertvfa.live/hls/stream.m3u8",
-      "category": "Poker",
-      "logo": "⚽"
-    },
-    {
-      "name": "PokerGo",
-      "url": "http://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/5fc54366b04b2300072e31af/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2b6274-30d3-11ef-9cf5-e9ddff8ff496&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&serverSideAds=false&sid=a68d07ef-a794-43f8-a287-3bd7f27d909b",
       "category": "Poker",
       "logo": "⚽"
     },
@@ -1528,12 +1452,6 @@
     {
       "name": "beIN Sports Haber",
       "url": "https://canlitvulusal3.xyz/live/beinsportshaber/index.m3u8",
-      "category": "Sports",
-      "logo": "⚽"
-    },
-    {
-      "name": "beIN SPORTS XTRA",
-      "url": "http://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/5df975e2b27cf5000921c102/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c26f5a4-30d3-11ef-9cf5-e9ddff8ff496&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&serverSideAds=false&sid=cb932046-e001-4189-a871-1376aa2ec340",
       "category": "Sports",
       "logo": "⚽"
     },

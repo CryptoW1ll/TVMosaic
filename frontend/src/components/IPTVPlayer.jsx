@@ -1,26 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Hls from 'hls.js';
-// Import icons
 import {
     FaVolumeMute, FaVolumeUp, FaExpand, FaCompress,
-    FaBars,     // Hamburger icon
-    FaTimes,    // Close icon 
-    FaSyncAlt   // Optional: Reload icon
+    FaBars, FaTimes, FaSyncAlt
 } from 'react-icons/fa';
+import { deleteChannel } from './api';
+import '../iptv.css';
+import '../App.css';
 
-import '../iptv.css'; 
-import '../App.css'; 
-
-// --- Helper Function ---
-function getRandomChannel(channelList) {
-    if (!Array.isArray(channelList) || channelList.length === 0) return null;
-    const randomIndex = Math.floor(Math.random() * channelList.length);
-    return channelList[randomIndex];
-}
-
-// --- Component Props Definition ---
 /**
  * @typedef {object} IPTVChannel
+ * @property {string} id - Unique channel identifier
  * @property {string} name - Channel name
  * @property {string} url - Stream URL (M3U8)
  * @property {string} [category] - Channel category (optional)
@@ -29,46 +19,37 @@ function getRandomChannel(channelList) {
 
 /**
  * @typedef {object} IPTVPlayerProps
- * @property {string | number} identifier - Unique ID for this player instance (e.g., slotId from parent).
- * @property {IPTVChannel[]} channels - List of available channels.
- * @property {IPTVChannel | null} [initialChannel] - Channel to load initially (optional).
- * @property {boolean} isExpanded - Whether the player is currently in expanded/fullscreen mode.
- * @property {boolean} hasAudio - Whether the player should currently have audio enabled (controlled by parent).
- * @property {() => void} onToggleAudio - Callback function when the user clicks the audio toggle button.
- * @property {() => void} onToggleExpand - Callback function when the user clicks the expand/compress button.
- * @property {() => void} onClose - Callback function when the user clicks the close button.
- * @property {(category: string) => void} [onCategoryChange] - Callback when category changes (optional).
- * @property {(channel: IPTVChannel) => void} [onChannelChange] - Callback when channel changes (optional).
+ * @property {string|number} identifier - Unique ID for this player instance
+ * @property {IPTVChannel[]} channels - List of available channels
+ * @property {IPTVChannel|null} [initialChannel] - Channel to load initially
+ * @property {boolean} isExpanded - Whether player is in expanded mode
+ * @property {boolean} hasAudio - Whether audio is enabled
+ * @property {() => void} onToggleAudio - Audio toggle callback
+ * @property {() => void} onToggleExpand - Expand toggle callback
+ * @property {() => void} onClose - Close callback
+ * @property {(category: string) => void} [onCategoryChange] - Category change callback
+ * @property {(channel: IPTVChannel|null) => void} [onChannelChange] - Channel change callback
  */
 
-// --- Component ---
-/**
- * IPTV Player Component
- * @param {IPTVPlayerProps} props
- */
 export default function IPTVPlayer({
-    identifier, // Added identifier prop
+    identifier,
     channels = [],
     initialChannel,
     isExpanded = false,
     hasAudio = true,
     onToggleAudio,
     onToggleExpand,
-    onClose, 
+    onClose,
     onCategoryChange,
     onChannelChange
 }) {
-
-    // --- State ---
+    // State
     const [currentIptvChannel, setCurrentIptvChannel] = useState(() => {
         if (initialChannel && initialChannel.url) return initialChannel;
-        // Fallback to random channel from the list
-        const random = getRandomChannel(channels);
-        return random || null; // Start with null if no channels or random fails
+        return getRandomChannel(channels);
     });
-
     const [currentCategory, setCurrentCategory] = useState(
-        () => currentIptvChannel?.category || 'All'
+        currentIptvChannel?.category || 'All'
     );
     const [iptvLoading, setIptvLoading] = useState(false);
     const [iptvError, setIptvError] = useState(null);
@@ -76,354 +57,355 @@ export default function IPTVPlayer({
     const [searchTerm, setSearchTerm] = useState('');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // --- Refs ---
+    // Refs
     const iptvVideoRef = useRef(null);
     const iptvHlsRef = useRef(null);
-    const sidebarRef = useRef(null); // Ref for sidebar (optional, for outside click)
-    const infoTimeoutRef = useRef(null); // Ref for the info overlay timeout
+    const sidebarRef = useRef(null);
+    const infoTimeoutRef = useRef(null);
 
-    // --- Derived State ---
+    // Helper function
+    function getRandomChannel(channelList) {
+        if (!Array.isArray(channelList) || channelList.length === 0) return null;
+        const randomIndex = Math.floor(Math.random() * channelList.length);
+        return channelList[randomIndex];
+    }
+
+    // Filter channels
     const safeChannels = Array.isArray(channels) ? channels : [];
-    const uniqueCategories = ['All', ...new Set(safeChannels.map(channel => channel.category || 'Unknown').filter(Boolean))]; // Filter out potential null/undefined categories
-
+    const uniqueCategories = ['All', ...new Set(
+        safeChannels.map(channel => channel.category || 'Unknown').filter(Boolean)
+    )];
     const filteredIptvChannels = safeChannels.filter(channel => {
         const categoryMatch = currentCategory === 'All' || channel.category === currentCategory;
-        // Ensure channel name exists before checking includes
-        const searchMatch = !searchTerm || (channel.name && channel.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        const searchMatch = !searchTerm || 
+            (channel.name && channel.name.toLowerCase().includes(searchTerm.toLowerCase()));
         return categoryMatch && searchMatch;
     });
 
-    // --- Effects ---
-
-    // Initialize Player & Handle Channel Changes
+    // Player setup and cleanup
     useEffect(() => {
         const videoElement = iptvVideoRef.current;
 
         const cleanup = () => {
             if (iptvHlsRef.current) {
-                console.log(`IPTVPlayer (${identifier}): Destroying HLS instance for`, iptvHlsRef.current.channelName);
                 iptvHlsRef.current.destroy();
                 iptvHlsRef.current = null;
             }
             if (videoElement) {
-                videoElement.removeAttribute('src'); // Clean up src for native HLS
-                videoElement.load(); // Stop any download
-                // Remove specific event listeners if added dynamically
-                videoElement.removeEventListener('loadedmetadata', handleNativeLoadedMetadata);
-                videoElement.removeEventListener('error', handleNativeError);
+                videoElement.removeAttribute('src');
+                videoElement.load();
             }
-            setIptvLoading(false); // Ensure loading is reset on cleanup
-            if (infoTimeoutRef.current) {
-                clearTimeout(infoTimeoutRef.current);
-            }
+            setIptvLoading(false);
+            clearTimeout(infoTimeoutRef.current);
         };
 
-        // Define reusable event handlers
         const handleNativeLoadedMetadata = () => {
             setIptvLoading(false);
             setIptvError(null);
-            console.log(`IPTVPlayer (${identifier}): Native HLS metadata loaded for ${currentIptvChannel?.name}`);
-            videoElement?.play().catch(e => console.warn(`IPTVPlayer (${identifier}): Native Autoplay prevented`, e.message));
+            videoElement?.play().catch(e => console.warn('Autoplay prevented', e));
         };
-        const handleNativeError = (e) => {
-            console.error(`IPTVPlayer (${identifier}): Native playback error for ${currentIptvChannel?.name}`, videoElement?.error);
+
+        const handleNativeError = () => {
             setIptvLoading(false);
-            setIptvError(`Error: Native playback failed.`);
-            // Don't trigger cleanup here automatically, error state handles UI
+            setIptvError('Error: Native playback failed.');
         };
 
-
-        if (!videoElement) {
-            console.warn(`IPTVPlayer (${identifier}): Video element ref is not ready.`);
-            return; // Don't proceed if video element isn't available
-        }
+        if (!videoElement) return;
 
         if (!currentIptvChannel?.url) {
-            cleanup(); // Clean previous instance if any
-            setIptvError(currentIptvChannel ? `Channel "${currentIptvChannel.name}" has no valid URL.` : 'No channel selected.');
-            // Ensure video is visually empty
-             if (videoElement) videoElement.poster = ''; // Optional: clear poster
-            return; // Stop if no valid channel/URL
+            cleanup();
+            setIptvError(currentIptvChannel ? 
+                `Channel "${currentIptvChannel.name}" has no valid URL.` : 
+                'No channel selected.');
+            return;
         }
 
-        console.log(`IPTVPlayer (${identifier}): Setting up channel: ${currentIptvChannel.name} (${currentIptvChannel.url})`);
-        cleanup(); // Clean up previous instance before setting up new one
+        console.log(`Setting up channel: ${currentIptvChannel.name}`);
+        cleanup();
         setIptvLoading(true);
         setIptvError(null);
-        setShowIptvInfo(true); // Show info on channel change attempt
+        setShowIptvInfo(true);
 
         if (Hls.isSupported()) {
-            console.log(`IPTVPlayer (${identifier}): Using HLS.js`);
             const hls = new Hls({
-                 // Consider smaller buffer to reduce latency for live streams
-                 maxBufferLength: 30, // seconds
-                 maxMaxBufferLength: 60,
-                 // Start loading fragility: retry settings might be useful
-                 fragLoadRetryDelay: 1000, // ms
-                 fragLoadRetryMax: 4,
-                 // Manifest load fragility
-                 manifestLoadRetryDelay: 500,
-                 manifestLoadRetryMax: 2,
+                maxBufferLength: 30,
+                maxMaxBufferLength: 60,
+                fragLoadRetryDelay: 1000,
+                fragLoadRetryMax: 4,
+                manifestLoadRetryDelay: 500,
+                manifestLoadRetryMax: 2,
             });
-            iptvHlsRef.current = hls; // Store ref immediately
-            hls.channelName = currentIptvChannel.name; // Store name for logging
+            iptvHlsRef.current = hls;
 
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                console.log(`IPTVPlayer (${identifier}): HLS Manifest parsed for ${hls.channelName}`);
                 setIptvLoading(false);
-                setIptvError(null); // Clear error on success
-                setShowIptvInfo(true); // Refresh info display
+                setIptvError(null);
+                setShowIptvInfo(true);
                 infoTimeoutRef.current = setTimeout(() => setShowIptvInfo(false), 3000);
-                videoElement?.play().catch(e => console.warn(`IPTVPlayer (${identifier}): HLS Autoplay prevented`, e.message));
+                videoElement?.play().catch(e => console.warn('Autoplay prevented', e));
             });
+
             hls.on(Hls.Events.ERROR, (event, data) => {
-                console.error(`IPTVPlayer (${identifier}): HLS Error on ${hls.channelName}`, data);
                 setIptvLoading(false);
-                const errorMsg = `Error: ${data.details || data.type}`;
-                setIptvError(errorMsg);
-                setShowIptvInfo(true); // Show error info
-                 // No automatic timeout for errors
+                setIptvError(`Error: ${data.details || data.type}`);
+                setShowIptvInfo(true);
+                
                 if (data.fatal) {
-                    console.warn(`IPTVPlayer (${identifier}): Fatal HLS error, destroying instance.`);
-                    hls.destroy(); // Attempt cleanup on fatal error
-                    iptvHlsRef.current = null; // Clear the ref
+                    hls.destroy();
+                    iptvHlsRef.current = null;
                 }
             });
 
             hls.loadSource(currentIptvChannel.url);
             hls.attachMedia(videoElement);
-
         } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-            console.log(`IPTVPlayer (${identifier}): Using native HLS`);
             videoElement.src = currentIptvChannel.url;
-            // Remove previous listeners before adding new ones
-            videoElement.removeEventListener('loadedmetadata', handleNativeLoadedMetadata);
-            videoElement.removeEventListener('error', handleNativeError);
-            // Add new listeners
             videoElement.addEventListener('loadedmetadata', handleNativeLoadedMetadata);
             videoElement.addEventListener('error', handleNativeError);
-            // Trigger loading (browser handles it)
             videoElement.load();
-            // Set info timer for native playback attempt
             infoTimeoutRef.current = setTimeout(() => setShowIptvInfo(false), 3000);
-
         } else {
-            console.error(`IPTVPlayer (${identifier}): HLS not supported by this browser.`);
             setIptvLoading(false);
             setIptvError('HLS playback is not supported in this browser.');
             setShowIptvInfo(true);
         }
 
-        // Return the master cleanup function
         return cleanup;
+    }, [currentIptvChannel, identifier]);
 
-    }, [currentIptvChannel, identifier]); // Rerun when channel or identifier changes
-
-    // Effect to update if initialChannel prop changes *after* initial mount
+    // Handle initial channel changes
+    // useEffect(() => {
+    //     if (initialChannel !== undefined && initialChannel?.url !== currentIptvChannel?.url) {
+    //         if (initialChannel === null) {
+    //             setCurrentIptvChannel(null);
+    //             setCurrentCategory('All');
+    //         } else if (initialChannel.url) {
+    //             setCurrentIptvChannel(initialChannel);
+    //             setCurrentCategory(initialChannel.category || 'All');
+    //         }
+    //     }
+    // }, [initialChannel]);
     useEffect(() => {
-        if (initialChannel !== undefined && initialChannel?.url !== currentIptvChannel?.url) {
-             // Check if initialChannel is explicitly null to clear the player
-            if (initialChannel === null) {
-                setCurrentIptvChannel(null);
-                setCurrentCategory('All');
-            } else if (initialChannel.url) { // Only set if it has a URL
-                setCurrentIptvChannel(initialChannel);
-                 setCurrentCategory(initialChannel.category || 'All');
+        if (initialChannel && initialChannel.url) {
+            // Ensure the channel has an ID before setting it
+            if (!initialChannel.id) {
+                console.warn('Initial channel has no ID:', initialChannel);
             }
+            setCurrentIptvChannel(initialChannel);
+            setCurrentCategory(initialChannel.category || 'All');
         }
-    }, [initialChannel]); // Dependency on initialChannel prop
+    }, [initialChannel]);
 
-     // Effect to clear info overlay automatically, except for errors
-     useEffect(() => {
+    // Auto-hide info overlay
+    useEffect(() => {
         if (showIptvInfo && !iptvError && !iptvLoading) {
-            if (infoTimeoutRef.current) clearTimeout(infoTimeoutRef.current);
+            clearTimeout(infoTimeoutRef.current);
             infoTimeoutRef.current = setTimeout(() => setShowIptvInfo(false), 3000);
         }
-        // Cleanup timeout if component unmounts while info is shown
-        return () => {
-            if (infoTimeoutRef.current) clearTimeout(infoTimeoutRef.current);
-        };
+        return () => clearTimeout(infoTimeoutRef.current);
     }, [showIptvInfo, iptvError, iptvLoading]);
 
+    // Event handlers
+    // const handleDeleteChannel = async (e) => {
+    //     e.stopPropagation();
+        
+    //     if (!currentIptvChannel?.id) {
+    //         console.warn('No valid channel to delete');
+    //         setIptvError('No channel ID available for deletion');
+    //         return;
+    //     }
 
-    // --- Handlers ---
+    //     try {
+    //         setIptvLoading(true);
+    //         await deleteChannel(currentIptvChannel.id);
+            
+    //         setCurrentIptvChannel(null);
+    //         setCurrentCategory('All');
+    //         setSearchTerm('');
+    //         setIptvLoading(false);
+    //         setIptvError(null);
+    //         setShowIptvInfo(false);
+    //         setIsSidebarOpen(false);
+            
+    //         if (onChannelChange) onChannelChange(null);
+    //     } catch (error) {
+    //         console.error('Delete failed:', error);
+    //         setIptvError('Failed to delete channel');
+    //         setIptvLoading(false);
+    //     }
+    // };
+
+    const handleDeleteChannel = async (e) => {
+        e.stopPropagation();
+        
+        // Check if current channel exists and has an ID
+        if (!currentIptvChannel) {
+            console.warn('No channel selected to delete');
+            setIptvError('No channel selected to delete');
+            return;
+        }
+    
+        if (!currentIptvChannel.id) {
+            console.warn('Channel has no ID, cannot delete:', currentIptvChannel);
+            setIptvError('This channel cannot be deleted (missing ID)');
+            return;
+        }
+    
+        try {
+            setIptvLoading(true);
+            setIptvError(null);
+            
+            // Call API to delete channel
+            await deleteChannel(currentIptvChannel.id);
+            console.log('Channel deleted successfully:', currentIptvChannel.name);
+            
+            // Clear the current channel after successful deletion
+            setCurrentIptvChannel(null);
+            setCurrentCategory('All');
+            setSearchTerm('');
+            setIptvLoading(false);
+            setShowIptvInfo(false);
+            
+            // Notify parent component about the deletion
+            if (onChannelChange) {
+                onChannelChange(null);
+            }
+            
+        } catch (error) {
+            console.error('Failed to delete channel:', error);
+            setIptvError('Failed to delete channel');
+            setIptvLoading(false);
+        }
+    };
 
     const changeIptvChannel = (channel) => {
-        if (!channel || channel?.url === currentIptvChannel?.url) {
-             console.log(`IPTVPlayer (${identifier}): Channel change ignored (same or invalid channel)`);
-             return; // Don't change if it's the same URL or invalid channel
-        }
-        console.log(`IPTVPlayer (${identifier}): User changing to channel: ${channel.name}`);
-        setCurrentIptvChannel(channel); // Triggers the main useEffect
-        setCurrentCategory(channel?.category || 'All'); // Update category filter to match selected channel
-        setSearchTerm(''); // Clear search on channel change
-        setIsSidebarOpen(false); // Close sidebar on channel selection
-        if (onChannelChange) {
-            onChannelChange(channel);
-        }
-        // Info display is handled by the main useEffect
+        if (!channel || channel.url === currentIptvChannel?.url) return;
+        
+        setCurrentIptvChannel(channel);
+        setCurrentCategory(channel.category || 'All');
+        setSearchTerm('');
+        setIsSidebarOpen(false);
+        
+        if (onChannelChange) onChannelChange(channel);
     };
 
     const filterChannelsByCategory = (category) => {
         if (category !== currentCategory) {
-            console.log(`IPTVPlayer (${identifier}): Filtering by category: ${category}`);
             setCurrentCategory(category);
-            setSearchTerm(''); // Clear search when changing category
-             if (onCategoryChange) {
-                onCategoryChange(category);
-            }
+            setSearchTerm('');
+            if (onCategoryChange) onCategoryChange(category);
         }
     };
 
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value);
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
     };
 
-    // Use the onToggleAudio prop passed from the parent (App.js)
     const handleToggleAudio = (e) => {
         e.stopPropagation();
-        console.log(`IPTVPlayer (${identifier}): Audio toggle clicked.`);
-        if (onToggleAudio) {
-            onToggleAudio(); // Call the parent's handler
-        } else {
-            console.warn(`IPTVPlayer (${identifier}): onToggleAudio prop is missing.`);
-            // Fallback - directly toggle video (but UI icon won't sync with App state)
-            if (iptvVideoRef.current) {
-                iptvVideoRef.current.muted = !iptvVideoRef.current.muted;
-            }
-        }
+        onToggleAudio();
     };
 
-    // Use the onToggleExpand prop passed from the parent (App.js)
     const handleToggleExpand = (e) => {
         e.stopPropagation();
-        console.log(`IPTVPlayer (${identifier}): Expand toggle clicked.`);
-        setIsSidebarOpen(false); // Ensure sidebar is closed when expanding/compressing
-        if (onToggleExpand) {
-            onToggleExpand(); // Call the parent's handler
-        } else {
-            console.warn(`IPTVPlayer (${identifier}): onToggleExpand prop is missing.`);
-        }
+        setIsSidebarOpen(false);
+        onToggleExpand();
     };
 
-     // Use the onClose prop passed from the parent (App.js)
     const handleClose = (e) => {
         e.stopPropagation();
-        console.log(`IPTVPlayer (${identifier}): Close button clicked.`);
-        setIsSidebarOpen(false); // Ensure sidebar is closed
-        if (onClose) {
-            onClose(); // Call the parent's handler to reset the slot
-        } else {
-            console.warn(`IPTVPlayer (${identifier}): onClose prop is missing.`);
-        }
+        setIsSidebarOpen(false);
+        onClose();
     };
 
-    // Sidebar Toggle Handler
     const toggleSidebar = (e) => {
         e.stopPropagation();
-         // Don't allow opening sidebar if expanded
         if (!isExpanded) {
             setIsSidebarOpen(prev => !prev);
         } else {
-             setIsSidebarOpen(false); // Ensure it's closed if expanded
+            setIsSidebarOpen(false);
         }
     };
 
-    // Optional: Close sidebar when clicking outside of it
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            // Check if the click is outside the sidebar and not on the toggle button
-            const toggleButton = document.getElementById(`sidebar-toggle-btn-${identifier}`);
-            if (sidebarRef.current && !sidebarRef.current.contains(event.target) &&
-                (!toggleButton || !toggleButton.contains(event.target)))
-            {
-               setIsSidebarOpen(false);
-            }
-        };
-
-        if (isSidebarOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isSidebarOpen, identifier]); // Add identifier to ensure unique toggle button ID
-
-
-    // --- Render Logic ---
+    // Render
     const containerClasses = `video-container iptv-player ${isExpanded ? 'expanded' : ''} ${hasAudio ? 'audio-active' : ''} ${!isExpanded && isSidebarOpen ? 'sidebar-open' : ''}`;
     const audioButtonIcon = hasAudio ? <FaVolumeUp /> : <FaVolumeMute />;
     const audioButtonTitle = hasAudio ? "Mute" : "Unmute";
     const expandButtonIcon = isExpanded ? <FaCompress /> : <FaExpand />;
     const expandButtonTitle = isExpanded ? "Exit Fullscreen" : "Toggle Fullscreen";
-    const canInteract = !!currentIptvChannel && !iptvLoading && !iptvError; // Simplify conditions
 
     return (
         <div className={containerClasses}>
-            {/* Video element needs to be muted based on parent's state */}
             <video ref={iptvVideoRef} playsInline muted={!hasAudio} autoPlay={false} />
 
             {(iptvLoading || iptvError) && (
-                <div className="video-overlay status-overlay"> {/* Added class */}
+                <div className="video-overlay status-overlay">
                     {iptvLoading && <div className="spinner"></div>}
-                    {iptvError && <div className="error-message">{iptvError}</div>}
+                    {iptvError && (
+                        <div className="error-message">
+                            {iptvError}
+                            <button 
+                                className="retry-button"
+                                onClick={() => setIptvError(null)}
+                            >
+                                Dismiss
+                            </button>
+                        </div>
+                    )}
+                    {currentIptvChannel?.id && (
+                        <button 
+                            className="delete-button" 
+                            onClick={handleDeleteChannel}
+                            disabled={iptvLoading}
+                        >
+                            {iptvLoading ? 'Deleting...' : 'Delete Channel'}
+                        </button>
+                    )}
                 </div>
             )}
 
-            {/* Channel Info Overlay */}
-             <div className={`iptv-info ${showIptvInfo ? 'show' : ''} ${iptvError ? (iptvError.startsWith('Error') ? 'error' : 'warning') : ''}`}>
+            <div className={`iptv-info ${showIptvInfo ? 'show' : ''} ${iptvError ? (iptvError.startsWith('Error') ? 'error' : 'warning') : ''}`}>
                 {iptvError ? iptvError : iptvLoading ? `Loading: ${currentIptvChannel?.name}` : `Playing: ${currentIptvChannel?.name || "No Channel"}`}
-             </div>
+            </div>
 
-
-            {/* --- Controls Bar --- */}
             <div className="video-controls">
-                 {/* Sidebar Toggle Button - Only show when NOT expanded */}
-                 {!isExpanded && (
+                {!isExpanded && (
                     <button
-                        id={`sidebar-toggle-btn-${identifier}`} // Unique ID per instance
+                        id={`sidebar-toggle-btn-${identifier}`}
                         className="control-btn sidebar-toggle-btn"
                         onClick={toggleSidebar}
                         title={isSidebarOpen ? "Close Channels" : "Open Channels"}
                         aria-label={isSidebarOpen ? "Close Channels" : "Open Channels"}
                         aria-expanded={isSidebarOpen}
-                        aria-controls={`iptv-sidebar-content-${identifier}`} // Link to sidebar content
+                        aria-controls={`iptv-sidebar-content-${identifier}`}
                     >
-                       {isSidebarOpen ? <FaTimes /> : <FaBars />}
+                        {isSidebarOpen ? <FaTimes /> : <FaBars />}
                     </button>
-                 )}
+                )}
 
-                {/* Stream Title - Show only if not expanded or if sidebar is closed */}
                 <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
-                   IPTV: {iptvLoading ? "Loading..." : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
+                    IPTV: {iptvLoading ? "Loading..." : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
                 </div>
 
-                {/* Main Control Buttons */}
                 <div className="control-buttons">
-                    {/* Volume Control */}
                     <button
                         className="control-btn audio-btn"
                         onClick={handleToggleAudio}
                         title={audioButtonTitle}
-                        disabled={!currentIptvChannel || iptvLoading} // Disable if no channel or loading
+                        disabled={!currentIptvChannel || iptvLoading}
                         aria-label={audioButtonTitle}
                     >
                         {audioButtonIcon}
                     </button>
-                    {/* Expand Control */}
                     <button
                         className="control-btn expand-btn"
                         onClick={handleToggleExpand}
                         title={expandButtonTitle}
-                        disabled={!currentIptvChannel || iptvLoading} // Disable if no channel or loading
+                        disabled={!currentIptvChannel || iptvLoading}
                         aria-label={expandButtonTitle}
                     >
                         {expandButtonIcon}
                     </button>
-                     {/* Close Button */}
                     <button
                         className="control-btn close-btn"
                         onClick={handleClose}
@@ -435,92 +417,83 @@ export default function IPTVPlayer({
                 </div>
             </div>
 
-            {/* --- Sidebar --- */}
-            {/* Render sidebar only when not expanded */}
             {!isExpanded && (
                 <div
-                    ref={sidebarRef} // Ref for potential outside click
+                    ref={sidebarRef}
                     className={`iptv-sidebar ${isSidebarOpen ? 'open' : ''}`}
-                    id={`iptv-sidebar-content-${identifier}`} // Unique ID
-                    aria-hidden={!isSidebarOpen} // Hide from screen readers when closed
+                    id={`iptv-sidebar-content-${identifier}`}
+                    aria-hidden={!isSidebarOpen}
                 >
-                    {/* Header with Title and Close Button */}
                     <div className="sidebar-header">
                         <h3>Channels</h3>
-                         <button
+                        <button
                             className="control-btn sidebar-close-btn"
-                            onClick={toggleSidebar} // Same toggle function
+                            onClick={toggleSidebar}
                             title="Close Channels"
                             aria-label="Close Channels"
                         >
-                           <FaTimes />
-                         </button>
+                            <FaTimes />
+                        </button>
                     </div>
 
-                    {/* Category Filter */}
                     <div className="iptv-category-filter sidebar-section">
-                         <label htmlFor={`category-select-${identifier}`}>Category:</label>
-                         <select
-                             id={`category-select-${identifier}`} // Unique ID
-                             value={currentCategory}
-                             onChange={(e) => filterChannelsByCategory(e.target.value)}
-                             onClick={(e) => e.stopPropagation()} // Prevent closing sidebar if clicking select
-                         >
-                             {uniqueCategories.map(category => (
-                                 <option key={category} value={category}>
-                                     {category}
-                                 </option>
-                             ))}
-                         </select>
+                        <label htmlFor={`category-select-${identifier}`}>Category:</label>
+                        <select
+                            id={`category-select-${identifier}`}
+                            value={currentCategory}
+                            onChange={(e) => filterChannelsByCategory(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {uniqueCategories.map(category => (
+                                <option key={category} value={category}>
+                                    {category}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
-                    {/* Search Input */}
                     <div className="iptv-search sidebar-section">
-                        <label htmlFor={`search-input-${identifier}`} className="sr-only">Search Channels</label> {/* Screen reader label */}
+                        <label htmlFor={`search-input-${identifier}`} className="sr-only">Search Channels</label>
                         <input
-                            id={`search-input-${identifier}`} // Unique ID
+                            id={`search-input-${identifier}`}
                             type="text"
                             placeholder="Search channels..."
                             value={searchTerm}
                             onChange={handleSearchChange}
-                            onClick={(e) => e.stopPropagation()} // Prevent clicks bubbling
+                            onClick={(e) => e.stopPropagation()}
                             aria-label="Search IPTV Channels"
                         />
                     </div>
 
-                    {/* Channel List */}
                     <div className="iptv-channel-list-wrapper sidebar-section">
                         <div className="iptv-channel-select">
                             {filteredIptvChannels.map((channel) => (
                                 <button
-                                    key={channel.name + channel.url} // Use a combination for better key uniqueness
-                                    className={`iptv-channel-btn ${currentIptvChannel?.url === channel.url ? 'active' : ''}`} // Compare URL for active state
+                                    key={channel.id || channel.url}
+                                    className={`iptv-channel-btn ${currentIptvChannel?.url === channel.url ? 'active' : ''}`}
                                     onClick={(e) => { e.stopPropagation(); changeIptvChannel(channel); }}
                                     title={channel.name}
                                 >
-                                    {channel.logo && <img src={channel.logo} alt="" className="channel-logo-small" onError={(e) => e.target.style.display='none'} />} {/* Hide logo on error */}
+                                    {channel.logo && <img src={channel.logo} alt="" className="channel-logo-small" onError={(e) => e.target.style.display = 'none'} />}
                                     <span className="channel-name">{channel.name}</span>
                                 </button>
                             ))}
-                            {/* Informative messages for empty list states */}
                             {safeChannels.length > 0 && filteredIptvChannels.length === 0 && searchTerm && (
                                 <span className="no-results">No channels match "{searchTerm}".</span>
                             )}
-                             {safeChannels.length > 0 && filteredIptvChannels.length === 0 && !searchTerm && currentCategory !== 'All' && (
+                            {safeChannels.length > 0 && filteredIptvChannels.length === 0 && !searchTerm && currentCategory !== 'All' && (
                                 <span className="no-results">No channels found in the "{currentCategory}" category.</span>
                             )}
-                             {safeChannels.length > 0 && filteredIptvChannels.length === 0 && !searchTerm && currentCategory === 'All' && (
-                                 <span className="no-results">No channels available. Check filters.</span> // Should not happen if safeChannels > 0 unless filtering issue
-                             )}
-                             {safeChannels.length === 0 && (
-                                 <span className="no-results">No channels loaded.</span>
-                             )}
+                            {safeChannels.length > 0 && filteredIptvChannels.length === 0 && !searchTerm && currentCategory === 'All' && (
+                                <span className="no-results">No channels available. Check filters.</span>
+                            )}
+                            {safeChannels.length === 0 && (
+                                <span className="no-results">No channels loaded.</span>
+                            )}
                         </div>
                     </div>
                 </div>
             )}
-            {/* --- End Sidebar --- */}
-
         </div>
     );
 }

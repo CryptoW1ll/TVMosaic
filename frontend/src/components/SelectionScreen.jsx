@@ -37,6 +37,10 @@ const SelectionScreen = ({ onSelect }) => {
       case 'iptv':
         setCurrentView('iptv');
         return;
+
+      case 'plex':
+      
+      return;
       
       case 'youtube':
         if (!youtubeUrl.trim()) {
@@ -105,37 +109,63 @@ const SelectionScreen = ({ onSelect }) => {
       </div>
     );
   }
+  else if (currentView === 'plex') {
+    return (
+      <iframe 
+        className="plex-container bg-black h-full w-full flex flex-col items-center justify-center p-4"
+        // src="https://watch.plex.tv/live-tv/channel/ufc-2"
+        src="https://app.plex.tv/desktop/#!/live-tv"
+        title="Plex Player"
+        width="100%"
+        height="100%"
+        frameBorder="0"
+        allowFullScreen
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms">
+      </iframe>
+    );
+  }
 
   // Render the selection screen by default
   return (
     <div className="selection-screen bg-black h-full w-full flex flex-col items-center justify-center p-4">
 
-
       {/* Selection buttons */}
-      <div className="button-grid grid grid-cols-2 gap-4 w-full max-w-md">
+      {/* <div className="button-grid grid grid-cols-2 gap-4 w-full max-w-md"> */}
+      <div className="button-grid grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md mx-auto">
         <button
-          className="selection-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+          className="selection-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
           onClick={() => handleSelect('iptv')}
-        >
+              >
           📺 IPTV Channels
         </button>
 
         <button
-          className="selection-button bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors"
+          className="selection-button bg-orange-400 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
+
+          onClick={() => handleSelect('plex')}
+        >
+          📺 Plex
+        </button>
+
+        <button
+              className="selection-button bg-green-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
+
           onClick={() => handleSelect('tvGarden')}
         >
           🌳 TV Garden
         </button>
 
         <button
-          className="selection-button bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors"
+              className="selection-button bg-red-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
+
           onClick={() => handleSelect('youtube')}
         >
           🎥 YouTube
         </button>
 
         <button
-          className="selection-button bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors"
+              className="selection-button bg-purple-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
+
           onClick={() => handleSelect('jellyfin')}
         >
           🏠 Jellyfin
