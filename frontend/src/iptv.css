@@ -1,5 +1,8 @@
 /* File 3: src/iptv.css */
 /* Description: CSS styles specific to the IPTVPlayer component */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* --- IPTV Player Container Base --- */
 .iptv-player {
@@ -17,11 +20,19 @@
   object-fit: contain; /* Or 'cover', depending on desired behavior */
 }
 
-/* --- Status Overlay (Loading/Error) --- */
-.status-overlay {
+.video-overlay {
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; 
+}
+
+/* --- Status Overlay (Loading/Error) --- */
+.status-overlay {
+  position: absolute;
+  top: 0; left: 0;
   width: 100%;
   height: 100%;
   display: flex;
@@ -29,10 +40,12 @@
   align-items: center;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 10;
-  //pointer-events: none; /* Allow clicks through to video/controls below if needed */
 }
 
 .spinner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
   border: 4px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top: 4px solid #fff;
@@ -40,6 +53,7 @@
   height: 40px;
   animation: spin 1s linear infinite;
 }
+
 
 @keyframes spin {
   0% { transform: rotate(0deg); }

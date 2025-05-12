@@ -39,7 +39,7 @@ const SelectionScreen = ({ onSelect }) => {
         return;
 
       case 'plex':
-      
+      setCurrentView('plex');
       return;
       
       case 'youtube':
@@ -73,7 +73,8 @@ const SelectionScreen = ({ onSelect }) => {
       
       case 'tvGarden':
         // Example of opening in new tab
-        window.open('https://example.com/tvgarden', '_blank');
+        // window.open('https://example.com/tvgarden', '_blank');
+        setCurrentView('tvgarden');
         return;
       
       case 'jellyfin':
@@ -114,8 +115,23 @@ const SelectionScreen = ({ onSelect }) => {
       <iframe 
         className="plex-container bg-black h-full w-full flex flex-col items-center justify-center p-4"
         // src="https://watch.plex.tv/live-tv/channel/ufc-2"
-        src="https://app.plex.tv/desktop/#!/live-tv"
+        // src="https://app.plex.tv/desktop/#!/live-tv"
+        src="https://watch.plex.tv/live-tv?_gl=1*1cv6qor*_gcl_au*MTM0NDM4OTA2OC4xNzQ3MDQyMjcz*_ga*Mjg5MDM4NDQuMTc0NjY5Mzk3MQ..*_ga_G6FQWNSENB*czE3NDcwNDIyNzQkbzIkZzAkdDE3NDcwNDIyNzQkajYwJGwwJGgw"
         title="Plex Player"
+        width="100%"
+        height="100%"
+        frameBorder="0"
+        allowFullScreen
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms">
+      </iframe>
+    );
+  }
+  else if (currentView === 'tvgarden') {
+    return (
+      <iframe 
+        className="plex-container bg-black h-full w-full flex flex-col items-center justify-center p-4"
+        src="https://tv.garden/"
+        title="TV Garden"
         width="100%"
         height="100%"
         frameBorder="0"

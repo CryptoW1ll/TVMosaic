@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Hls from 'hls.js';
 import {
     FaVolumeMute, FaVolumeUp, FaExpand, FaCompress,
-    FaBars, FaTimes, FaSyncAlt
+    FaBars, FaTimes, FaSyncAlt, FaRandom
 } from 'react-icons/fa';
 import { deleteChannel } from './api';
 import '../iptv.css';
@@ -146,14 +146,27 @@ export default function IPTVPlayer({
             });
 
             hls.on(Hls.Events.ERROR, (event, data) => {
-                setIptvLoading(false);
-                setIptvError(`Error: ${data.details || data.type}`);
-                setShowIptvInfo(true);
-                
-                if (data.fatal) {
-                    hls.destroy();
-                    iptvHlsRef.current = null;
+                setIptvLoading(false); 
+                setIptvError(null);
+
+                // set new random channel
+                const newChannel = getRandomChannel(safeChannels);
+                if (newChannel) {
+                    setCurrentIptvChannel(newChannel);
+                    setCurrentCategory(newChannel.category || 'All');
+                    setSearchTerm('');
+                    setIsSidebarOpen(false);
+                    if (onChannelChange) onChannelChange(newChannel);
                 }
+                setShowIptvInfo(true);
+
+
+                //setIptvError(`Error: ${data.details || data.type}`);
+                // setShowIptvInfo(true);               
+                // if (data.fatal) {
+                //     hls.destroy();
+                //     iptvHlsRef.current = null;
+                // }
             });
 
             hls.loadSource(currentIptvChannel.url);
@@ -173,22 +186,15 @@ export default function IPTVPlayer({
         return cleanup;
     }, [currentIptvChannel, identifier]);
 
-    // Handle initial channel changes
-    // useEffect(() => {
-    //     if (initialChannel !== undefined && initialChannel?.url !== currentIptvChannel?.url) {
-    //         if (initialChannel === null) {
-    //             setCurrentIptvChannel(null);
-    //             setCurrentCategory('All');
-    //         } else if (initialChannel.url) {
-    //             setCurrentIptvChannel(initialChannel);
-    //             setCurrentCategory(initialChannel.category || 'All');
-    //         }
-    //     }
-    // }, [initialChannel]);
+
+    
     useEffect(() => {
         if (initialChannel && initialChannel.url) {
             // Ensure the channel has an ID before setting it
-            if (!initialChannel.id) {
+            //if (!initialChannel.id) {
+            if (!initialChannel.channelId) {
+                // this is always triggered!
+                // IPTVPlayer.jsx:195 Initial channel has no ID: {channelId: 145, name: 'MAV Select USA', url: 'https://d3h07n6l1exhds.cloudfront.net/v1/master/37…6c5b73da68a62b09d1/cc-0z2yyo4dxctc7/playlist.m3u8', category: 'Motorsports', icon: '⚽'}
                 console.warn('Initial channel has no ID:', initialChannel);
             }
             setCurrentIptvChannel(initialChannel);
@@ -333,6 +339,7 @@ export default function IPTVPlayer({
     const audioButtonTitle = hasAudio ? "Mute" : "Unmute";
     const expandButtonIcon = isExpanded ? <FaCompress /> : <FaExpand />;
     const expandButtonTitle = isExpanded ? "Exit Fullscreen" : "Toggle Fullscreen";
+    const randomChannel = isExpanded ? currentIptvChannel : getRandomChannel(filteredIptvChannels);
 
     return (
         <div className={containerClasses}>
@@ -389,6 +396,15 @@ export default function IPTVPlayer({
 
                 <div className="control-buttons">
                     <button
+                        className="control-btn random-btn"
+                        onClick={(e) => { e.stopPropagation(); changeIptvChannel(randomChannel); }}
+                        title="Random Channel"
+                        disabled={!currentIptvChannel || iptvLoading}
+                        aria-label="Random Channel"
+                    >
+                        <FaRandom />
+                    </button>
+                    <button
                         className="control-btn audio-btn"
                         onClick={handleToggleAudio}
                         title={audioButtonTitle}
@@ -426,14 +442,14 @@ export default function IPTVPlayer({
                 >
                     <div className="sidebar-header">
                         <h3>Channels</h3>
-                        <button
+                        {/* <button
                             className="control-btn sidebar-close-btn"
                             onClick={toggleSidebar}
                             title="Close Channels"
                             aria-label="Close Channels"
                         >
                             <FaTimes />
-                        </button>
+                        </button> */}
                     </div>
 
                     <div className="iptv-category-filter sidebar-section">

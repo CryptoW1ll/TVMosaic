@@ -50,6 +50,12 @@ function App() {
         [slotId]: { type: "iptv", data },
       }));
     }
+    else if (type === "plex") {
+      setSlots((prev) => ({
+        ...prev,
+        [slotId]: { type: "plex", data },
+      }));
+    }
   };
 
   return (
@@ -97,7 +103,7 @@ function DynamicGrid({ gridLayout, screenCount, handleSelect, slots }) {
 
       {/* Larger grid (sm:grid, md:grid-cols-2, lg:grid-cols-3, etc.) */}
       <div
-        className="hidden sm:grid gap-4 p-4 h-full w-full"
+        className="hidden sm:grid gap-1 p-1 h-full w-full"
         style={{
           gridTemplateColumns: `repeat(${cols}, 1fr)`,
           gridTemplateRows: `repeat(${rows}, 1fr)`,
@@ -110,6 +116,8 @@ function DynamicGrid({ gridLayout, screenCount, handleSelect, slots }) {
           >
             {slots[index]?.type === "iptv" ? (
               <IPTVPlayer data={slots[index].data} /> // show IPTV if selected
+            ) : slots[index]?.type === "plex" ? (
+              <TVGarden data={slots[index].data} />
             ) : (
               <SelectionScreen onSelect={(slotId, type, data) => handleSelect(index, type, data)} />
             )}
