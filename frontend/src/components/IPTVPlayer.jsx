@@ -141,13 +141,24 @@ export default function IPTVPlayer({
                 setIptvLoading(false);
                 setIptvError(null);
                 setShowIptvInfo(true);
-                infoTimeoutRef.current = setTimeout(() => setShowIptvInfo(false), 3000);
+                infoTimeoutRef.current = setTimeout(() => setShowIptvInfo(false), 6000);
                 videoElement?.play().catch(e => console.warn('Autoplay prevented', e));
+                return;
             });
 
             hls.on(Hls.Events.ERROR, (event, data) => {
                 setIptvLoading(false); 
                 setIptvError(null);
+
+                // delete the channel
+                deleteChannel(currentIptvChannel.channelId);
+                setCurrentIptvChannel(null);
+                setCurrentCategory('All');
+                setSearchTerm('');
+                setIsSidebarOpen(false);
+                setIptvLoading(false);
+                setIptvError(null);
+                setShowIptvInfo(false);
 
                 // set new random channel
                 const newChannel = getRandomChannel(safeChannels);
@@ -160,6 +171,7 @@ export default function IPTVPlayer({
                 }
                 setShowIptvInfo(true);
 
+                
 
                 //setIptvError(`Error: ${data.details || data.type}`);
                 // setShowIptvInfo(true);               
@@ -212,34 +224,6 @@ export default function IPTVPlayer({
     }, [showIptvInfo, iptvError, iptvLoading]);
 
     // Event handlers
-    // const handleDeleteChannel = async (e) => {
-    //     e.stopPropagation();
-        
-    //     if (!currentIptvChannel?.id) {
-    //         console.warn('No valid channel to delete');
-    //         setIptvError('No channel ID available for deletion');
-    //         return;
-    //     }
-
-    //     try {
-    //         setIptvLoading(true);
-    //         await deleteChannel(currentIptvChannel.id);
-            
-    //         setCurrentIptvChannel(null);
-    //         setCurrentCategory('All');
-    //         setSearchTerm('');
-    //         setIptvLoading(false);
-    //         setIptvError(null);
-    //         setShowIptvInfo(false);
-    //         setIsSidebarOpen(false);
-            
-    //         if (onChannelChange) onChannelChange(null);
-    //     } catch (error) {
-    //         console.error('Delete failed:', error);
-    //         setIptvError('Failed to delete channel');
-    //         setIptvLoading(false);
-    //     }
-    // };
 
     const handleDeleteChannel = async (e) => {
         e.stopPropagation();
@@ -251,7 +235,7 @@ export default function IPTVPlayer({
             return;
         }
     
-        if (!currentIptvChannel.id) {
+        if (!currentIptvChannel.channelId) {
             console.warn('Channel has no ID, cannot delete:', currentIptvChannel);
             setIptvError('This channel cannot be deleted (missing ID)');
             return;
@@ -359,7 +343,7 @@ export default function IPTVPlayer({
                             </button>
                         </div>
                     )}
-                    {currentIptvChannel?.id && (
+                    {currentIptvChannel?.channelId && (
                         <button 
                             className="delete-button" 
                             onClick={handleDeleteChannel}

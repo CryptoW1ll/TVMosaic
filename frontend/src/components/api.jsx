@@ -25,7 +25,10 @@ async function handleRequest(url, options = {}) {
       );
     }
 
-    return await response.json();
+  if (response.status === 204) return null; // No content on DELETE
+
+    return await response.json(); 
+    
   } catch (error) {
     console.error(`API request to ${url} failed:`, error.message);
     throw error; // Re-throw for component-level handling
