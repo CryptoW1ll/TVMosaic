@@ -95,7 +95,7 @@ const SelectionScreen = ({ onSelect }) => {
   if (currentView === 'iptv') {
     return (
       // <div className="iptv-container">
-      <div className="iptv-container bg-black h-full w-full flex flex-col items-center justify-center p-4">
+      <div className="iptv-container bg-black h-full w-full flex flex-col items-center justify-center p-1">
         <IPTVPlayer
           identifier={slotId}
           channels={iptvChannels}
@@ -113,7 +113,7 @@ const SelectionScreen = ({ onSelect }) => {
   else if (currentView === 'plex') {
     return (
       <iframe 
-        className="plex-container bg-black h-full w-full flex flex-col items-center justify-center p-4"
+        className="plex-container bg-black h-full w-full flex flex-col items-center justify-center p-1"
         // src="https://watch.plex.tv/live-tv/channel/ufc-2"
         // src="https://app.plex.tv/desktop/#!/live-tv"
         src="https://watch.plex.tv/live-tv?_gl=1*1cv6qor*_gcl_au*MTM0NDM4OTA2OC4xNzQ3MDQyMjcz*_ga*Mjg5MDM4NDQuMTc0NjY5Mzk3MQ..*_ga_G6FQWNSENB*czE3NDcwNDIyNzQkbzIkZzAkdDE3NDcwNDIyNzQkajYwJGwwJGgw"
@@ -129,7 +129,7 @@ const SelectionScreen = ({ onSelect }) => {
   else if (currentView === 'tvgarden') {
     return (
       <iframe 
-        className="plex-container bg-black h-full w-full flex flex-col items-center justify-center p-4"
+        className="plex-container bg-black h-full w-full flex flex-col items-center justify-center p-1"
         src="https://tv.garden/"
         title="TV Garden"
         width="100%"
@@ -143,7 +143,7 @@ const SelectionScreen = ({ onSelect }) => {
 
   // Render the selection screen by default
   return (
-    <div className="selection-screen bg-black h-full w-full flex flex-col items-center justify-center p-4">
+    <div className="selection-screen bg-black h-full w-full flex flex-col items-center justify-center p-1">
 
       {/* Selection buttons */}
       {/* <div className="button-grid grid grid-cols-2 gap-4 w-full max-w-md"> */}

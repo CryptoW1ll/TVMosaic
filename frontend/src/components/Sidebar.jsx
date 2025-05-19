@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 
 function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScreen, removeScreen, canRemoveScreen, screenCount }) {
-    
+    const [isVisible, setIsVisible] = useState(true); 
+
     const handleAddScreenClick = () => {
         if (screenCount === 1) {
             // When there's only one screen, switch to 2x2 grid
@@ -14,8 +15,26 @@ function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScre
         }
     };
 
-    return (
-      <div className="bg-gray-200 p-4 w-48">
+    if (!isVisible) {
+        return (
+            <button 
+                onClick={() => setIsVisible(true)} 
+                className="p-2 text-white fixed top-4 left-4 z-50"
+            >
+                Open Sidebar
+            </button>
+        );
+    }
+
+
+      return (
+        <div className="bg-gray-200 p-4 w-48">
+          <button 
+            onClick={() => setIsVisible(false)} 
+            className="mb-4 text-sm text-blue-600 underline"
+          >
+            Close Sidebar
+          </button>
         <h2 className="mb-4 font-semibold text-lg">Grids</h2>
 
         {gridTypes.map((grid) => (

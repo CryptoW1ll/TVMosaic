@@ -8,6 +8,7 @@ import { deleteChannel } from './api';
 import '../iptv.css';
 import '../App.css';
 
+
 /**
  * @typedef {object} IPTVChannel
  * @property {string} id - Unique channel identifier
@@ -151,14 +152,14 @@ export default function IPTVPlayer({
                 setIptvError(null);
 
                 // delete the channel
-                deleteChannel(currentIptvChannel.channelId);
-                setCurrentIptvChannel(null);
-                setCurrentCategory('All');
-                setSearchTerm('');
-                setIsSidebarOpen(false);
-                setIptvLoading(false);
-                setIptvError(null);
-                setShowIptvInfo(false);
+                //deleteChannel(currentIptvChannel.channelId);
+                //setCurrentIptvChannel(null);
+                //setCurrentCategory('All');
+                //setSearchTerm('');
+                //setIsSidebarOpen(false);
+                //setIptvLoading(false);
+                //setIptvError(null);
+                //setShowIptvInfo(false);
 
                 // set new random channel
                 const newChannel = getRandomChannel(safeChannels);
@@ -343,20 +344,20 @@ export default function IPTVPlayer({
                             </button>
                         </div>
                     )}
-                    {currentIptvChannel?.channelId && (
+                    {/* {currentIptvChannel?.channelId && (
                         <button 
                             className="delete-button" 
                             onClick={handleDeleteChannel}
                             disabled={iptvLoading}
                         >
-                            {iptvLoading ? 'Deleting...' : 'Delete Channel'}
+                            {iptvLoading ? 'Loading...' : 'Delete Channel'}
                         </button>
-                    )}
+                    )} */}
                 </div>
             )}
 
             <div className={`iptv-info ${showIptvInfo ? 'show' : ''} ${iptvError ? (iptvError.startsWith('Error') ? 'error' : 'warning') : ''}`}>
-                {iptvError ? iptvError : iptvLoading ? `Loading: ${currentIptvChannel?.name}` : `Playing: ${currentIptvChannel?.name || "No Channel"}`}
+                {/* {iptvError ? iptvError : iptvLoading ? `Loading: ${currentIptvChannel?.name}` : `Playing: ${currentIptvChannel?.name || "No Channel"}`} */}
             </div>
 
             <div className="video-controls">
@@ -375,7 +376,7 @@ export default function IPTVPlayer({
                 )}
 
                 <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
-                    IPTV: {iptvLoading ? "Loading..." : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
+                    {iptvLoading ? "Loading..." : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
                 </div>
 
                 <div className="control-buttons">

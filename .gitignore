@@ -2,3 +2,8 @@
 /TVFeedsApi/bin
 /TVFeedsApi/obj
 /sportsfeedapi/obj
+node_modules
+/sportsfeedapi/bin
+/usapi/bin
+/usapi/obj
+/TVFeedsApi/obj
