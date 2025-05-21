@@ -7,3 +7,4 @@ node_modules
 /usapi/bin
 /usapi/obj
 /TVFeedsApi/obj
+usapi/appsettings.json
