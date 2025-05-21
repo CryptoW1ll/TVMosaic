@@ -2,42 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import Hls from 'hls.js';
 import {
     FaVolumeMute, FaVolumeUp, FaExpand, FaCompress,
-    FaBars, FaTimes, FaSyncAlt, FaRandom
+    FaBars, FaTimes, FaSyncAlt, FaRandom, FaTrash,
 } from 'react-icons/fa';
 import { deleteChannel } from './api';
 import '../iptv.css';
 import '../App.css';
-
-
-/**
- * @typedef {object} IPTVChannel
- * @property {string} id - Unique channel identifier
- * @property {string} name - Channel name
- * @property {string} url - Stream URL (M3U8)
- * @property {string} [category] - Channel category (optional)
- * @property {string} [logo] - URL to channel logo (optional)
- */
-
-/**
- * @typedef {object} IPTVPlayerProps
- * @property {string|number} identifier - Unique ID for this player instance
- * @property {IPTVChannel[]} channels - List of available channels
- * @property {IPTVChannel|null} [initialChannel] - Channel to load initially
- * @property {boolean} isExpanded - Whether player is in expanded mode
- * @property {boolean} hasAudio - Whether audio is enabled
- * @property {() => void} onToggleAudio - Audio toggle callback
- * @property {() => void} onToggleExpand - Expand toggle callback
- * @property {() => void} onClose - Close callback
- * @property {(category: string) => void} [onCategoryChange] - Category change callback
- * @property {(channel: IPTVChannel|null) => void} [onChannelChange] - Channel change callback
- */
 
 export default function IPTVPlayer({
     identifier,
     channels = [],
     initialChannel,
     isExpanded = false,
-    hasAudio = true,
+    hasAudio = false,
     onToggleAudio,
     onToggleExpand,
     onClose,
@@ -325,6 +301,12 @@ export default function IPTVPlayer({
     const expandButtonIcon = isExpanded ? <FaCompress /> : <FaExpand />;
     const expandButtonTitle = isExpanded ? "Exit Fullscreen" : "Toggle Fullscreen";
     const randomChannel = isExpanded ? currentIptvChannel : getRandomChannel(filteredIptvChannels);
+    // delete button
+    const deleteButtonIcon = <FaTrash />;
+    const deleteButtonTitle = "Delete Channel";
+    const deleteButtonClasses = `control-btn delete-btn ${iptvLoading ? 'loading' : ''}`;
+    const deleteButtonDisabled = !currentIptvChannel || iptvLoading;
+
 
     return (
         <div className={containerClasses}>
@@ -376,7 +358,7 @@ export default function IPTVPlayer({
                 )}
 
                 <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
-                    {iptvLoading ? "Loading..." : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
+                    {iptvLoading ? "" : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
                 </div>
 
                 <div className="control-buttons">
@@ -415,6 +397,18 @@ export default function IPTVPlayer({
                     >
                         <FaTimes />
                     </button>
+                    <button
+                        className={deleteButtonClasses}         // e.g. 'control-btn delete-btn' or 'control-btn delete-btn disabled'
+                        onClick={handleDeleteChannel}
+                        title={deleteButtonTitle}                // e.g. "Delete Channel"
+                        disabled={deleteButtonDisabled}          // boolean
+                        aria-label={deleteButtonTitle}
+                        aria-disabled={deleteButtonDisabled}
+                        type="button"                           // Explicitly define button type
+                        >
+                        <FaTrash />                    
+                    </button>
+                                            
                 </div>
             </div>
 
