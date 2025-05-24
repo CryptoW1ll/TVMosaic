@@ -21,7 +21,9 @@ public class PlaylistSyncService : BackgroundService
         var pairs = lines.Chunk(2).Where(c => c.Length == 2 && c[0].StartsWith("#EXTINF"));
 
         var records = new List<Channel>();
-        var regex = new Regex(@"(\w+?)=""(.*?)""", RegexOptions.Compiled);
+        //var regex = new Regex(@"(\w+?)=""(.*?)""", RegexOptions.Compiled);
+        var regex = new Regex(@"([\w\-]+)=""(.*?)""", RegexOptions.Compiled);
+
 
         foreach (var chunk in pairs)
         {
@@ -30,12 +32,25 @@ public class PlaylistSyncService : BackgroundService
             var attrs = regex.Matches(meta)
                              .ToDictionary(m => m.Groups[1].Value, m => m.Groups[2].Value);
 
+            // records.Add(new Channel
+            // {
+            //     TvgId = attrs.GetValueOrDefault("tvg-id") ?? "",
+            //     Name = meta[(meta.IndexOf(',') + 1)..].Trim(),
+            //     Logo = attrs.GetValueOrDefault("tvg-logo") ?? "",
+            //     //Category = attrs.GetValueOrDefault("group-title") ?? "",
+            //     Category = (attrs.GetValueOrDefault("group-title") ?? "").Split(';').FirstOrDefault()?.Trim() ?? "",
+            //     Url = url
+            // });
             records.Add(new Channel
             {
                 TvgId = attrs.GetValueOrDefault("tvg-id") ?? "",
-                Name = meta[(meta.IndexOf(',') + 1)..].Trim(),
+                Name = Regex.Replace(
+                    meta[(meta.IndexOf(',') + 1)..].Trim(),
+                    @"\s*\(\d+p\)",
+                    ""
+                ),
                 Logo = attrs.GetValueOrDefault("tvg-logo") ?? "",
-                Category = attrs.GetValueOrDefault("group-title") ?? "",
+                Category = (attrs.GetValueOrDefault("group-title") ?? "").Split(';').FirstOrDefault()?.Trim() ?? "",
                 Url = url
             });
         }

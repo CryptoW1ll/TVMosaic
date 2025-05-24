@@ -29,4 +29,24 @@ function Grid2x2() {
       </div>
     </div>
   );
-}
+} export default Grid2x2;
+
+// import IPTVPlayer from "./IPTVPlayer";
+
+// function Grid2x2() {
+//   return (
+//     <div className="flex-1 h-full w-full overflow-hidden">
+//       <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-2 gap-4 p-4 h-full">
+//         {Array.from({ length: 4 }).map((_, index) => (
+//           <div
+//             key={index}
+//             className="bg-gray-100 border border-gray-300 flex items-center justify-center"
+//           >
+//             <IPTVPlayer />
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
+

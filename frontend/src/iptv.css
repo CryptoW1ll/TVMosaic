@@ -431,3 +431,24 @@
 .delete-button:hover {
   background-color: #c0392b;
 }
+
+.iptv-player-container .controls-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px;
+    display: flex;
+    justify-content: flex-end; /* right-align horizontally */
+    align-items: center;       /* center vertically */
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    transform: translateY(100%);
+    opacity: 0;
+    z-index: 10;
+}
+
+.iptv-player-container .controls-bar.open {
+    transform: translateY(0%);
+    opacity: 1;
+}

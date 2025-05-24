@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import '../iptv.css';
+
 
 function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScreen, removeScreen, canRemoveScreen, screenCount }) {
     const [isVisible, setIsVisible] = useState(true); 
@@ -17,11 +19,29 @@ function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScre
 
     if (!isVisible) {
         return (
-            <button 
-                onClick={() => setIsVisible(true)} 
-                className="p-2 text-white fixed top-4 left-4 z-50"
+            // <button 
+            //     onClick={() => setIsVisible(true)} 
+            //     className="p-2 text-white fixed top-4 left-4 z-50"
+            // >
+            //     Open Sidebar
+            // </button>
+            <button            
+              //className="control-btn sidebar-toggle-btn"
+              className="p-2 text-white fixed top-4 left-4 z-50"
+              onClick={() => setIsVisible(true)} 
             >
-                Open Sidebar
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>  
             </button>
         );
     }
@@ -29,13 +49,26 @@ function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScre
 
       return (
         <div className="bg-gray-200 p-4 w-48">
-          <button 
-            onClick={() => setIsVisible(false)} 
-            className="mb-4 text-sm text-blue-600 underline"
+          <button            
+              className="control-btn sidebar-toggle-btn"
+              //onClick={toggleSidebar}
+              onClick={() => setIsVisible(false)} 
           >
-            Close Sidebar
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>  
           </button>
-        <h2 className="mb-4 font-semibold text-lg">Grids</h2>
+
+        {/* <h2 className="mb-4 font-semibold text-lg">Grids</h2> */}
 
         {gridTypes.map((grid) => (
           <button

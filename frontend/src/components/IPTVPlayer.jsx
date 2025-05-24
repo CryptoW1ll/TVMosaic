@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Hls from 'hls.js';
 import {
     FaVolumeMute, FaVolumeUp, FaExpand, FaCompress,
-    FaBars, FaTimes, FaSyncAlt, FaRandom, FaTrash,
+    FaBars, FaTimes, FaSyncAlt, FaRandom, FaTrash, FaStar,
 } from 'react-icons/fa';
 import { deleteChannel } from './api';
 import '../iptv.css';
@@ -34,11 +34,27 @@ export default function IPTVPlayer({
     const [searchTerm, setSearchTerm] = useState('');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    const [isControlsbarOpen, setIsControlsbarOpen] = useState(false);
+    //const [isExpanded, setIsExpanded] = useState(false);
+
+    const [favouriteChannels, setFavoriteChannels] = useState(() => {
+        const storedChannels = localStorage.getItem('favouriteChannels');
+        return storedChannels ? JSON.parse(storedChannels) : [];
+    });
+    const [isFavourite, setIsFavourite] = useState(() => {
+        if (favouriteChannels.length > 0) {
+            return favouriteChannels.some(channel => channel.id === currentIptvChannel?.id);
+        }
+        return false;
+    });
+
+
     // Refs
     const iptvVideoRef = useRef(null);
     const iptvHlsRef = useRef(null);
     const sidebarRef = useRef(null);
     const infoTimeoutRef = useRef(null);
+    const playerRef = useRef(null);
 
     // Helper function
     function getRandomChannel(channelList) {
@@ -175,6 +191,68 @@ export default function IPTVPlayer({
         return cleanup;
     }, [currentIptvChannel, identifier]);
 
+    // controls menu bar
+useEffect(() => {
+    if (!playerRef.current) return; // Don’t continue if not mounted
+
+    const player = playerRef.current;
+    let hideTimeout;
+
+    const handleMouseMove = (e) => {
+        const rect = player.getBoundingClientRect();
+        const mouseY = e.clientY;
+
+        if (mouseY > rect.bottom - 80 && mouseY < rect.bottom) {
+            setIsControlsbarOpen(true);
+
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                setIsControlsbarOpen(false);
+            }, 5000);
+        }
+    };
+
+    player.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+        player.removeEventListener("mousemove", handleMouseMove);
+        clearTimeout(hideTimeout);
+    };
+}, [playerRef.current]); // Runs again if playerRef changes
+
+useEffect(() => {
+    const interval = setInterval(() => {
+        if (playerRef.current) {
+            clearInterval(interval);
+
+            const player = playerRef.current;
+            let hideTimeout;
+
+            const handleMouseMove = (e) => {
+                const rect = player.getBoundingClientRect();
+                const mouseY = e.clientY;
+
+                if (mouseY > rect.bottom - 80 && mouseY < rect.bottom) {
+                    setIsControlsbarOpen(true);
+                    clearTimeout(hideTimeout);
+                    hideTimeout = setTimeout(() => {
+                        setIsControlsbarOpen(false);
+                    }, 15000);
+                }
+            };
+
+            player.addEventListener("mousemove", handleMouseMove);
+
+            // Cleanup
+            return () => {
+                player.removeEventListener("mousemove", handleMouseMove);
+                clearTimeout(hideTimeout);
+            };
+        }
+    }, 100);
+
+    return () => clearInterval(interval);
+}, []);
 
     
     useEffect(() => {
@@ -273,11 +351,11 @@ export default function IPTVPlayer({
         onToggleAudio();
     };
 
-    const handleToggleExpand = (e) => {
-        e.stopPropagation();
-        setIsSidebarOpen(false);
-        onToggleExpand();
-    };
+    // const handleToggleExpand = (e) => {
+    //     e.stopPropagation();
+    //     setIsSidebarOpen(false);
+    //     onToggleExpand();
+    // };
 
     const handleClose = (e) => {
         e.stopPropagation();
@@ -298,18 +376,28 @@ export default function IPTVPlayer({
     const containerClasses = `video-container iptv-player ${isExpanded ? 'expanded' : ''} ${hasAudio ? 'audio-active' : ''} ${!isExpanded && isSidebarOpen ? 'sidebar-open' : ''}`;
     const audioButtonIcon = hasAudio ? <FaVolumeUp /> : <FaVolumeMute />;
     const audioButtonTitle = hasAudio ? "Mute" : "Unmute";
-    const expandButtonIcon = isExpanded ? <FaCompress /> : <FaExpand />;
+    //const expandButtonIcon = isExpanded ? <FaCompress /> : <FaExpand />;
     const expandButtonTitle = isExpanded ? "Exit Fullscreen" : "Toggle Fullscreen";
     const randomChannel = isExpanded ? currentIptvChannel : getRandomChannel(filteredIptvChannels);
+
     // delete button
     const deleteButtonIcon = <FaTrash />;
     const deleteButtonTitle = "Delete Channel";
     const deleteButtonClasses = `control-btn delete-btn ${iptvLoading ? 'loading' : ''}`;
     const deleteButtonDisabled = !currentIptvChannel || iptvLoading;
 
+    // favoutite button
+    // const favouriteButtonIcon = isFavourite ? <FaTrash /> : <FaTrash />;
+    const favouriteButtonIcon = isFavourite ? <FaStar /> : <FaStar />;
+    const favouriteButtonTitle = isFavourite ? "Remove from Favourites" : "Add to Favourites";
+    const favouriteButtonClasses = `control-btn favourite-btn ${iptvLoading ? 'loading' : ''}`;
+    const favouriteButtonDisabled = !currentIptvChannel || iptvLoading;
 
     return (
-        <div className={containerClasses}>
+        // <div className={containerClasses}>
+        // <div className={containerClasses} ref={playerRef}>
+        <div className={`iptv-player-container ${containerClasses}`} ref={playerRef}>
+
             <video ref={iptvVideoRef} playsInline muted={!hasAudio} autoPlay={false} />
 
             {(iptvLoading || iptvError) && (
@@ -343,7 +431,8 @@ export default function IPTVPlayer({
             </div>
 
             <div className="video-controls">
-                {!isExpanded && (
+                
+                {/* {!isExpanded && (
                     <button
                         id={`sidebar-toggle-btn-${identifier}`}
                         className="control-btn sidebar-toggle-btn"
@@ -355,13 +444,37 @@ export default function IPTVPlayer({
                     >
                         {isSidebarOpen ? <FaTimes /> : <FaBars />}
                     </button>
-                )}
-
-                <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
+                )} */}
+                {/* <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
                     {iptvLoading ? "" : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
-                </div>
+                </div> */}
 
-                <div className="control-buttons">
+                <div className={`controls-bar ${isControlsbarOpen ? 'open' : ''}`}>                   
+                    <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
+                        {iptvLoading ? "" : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
+                    </div>
+                        {/* {!isExpanded && ( */}
+                        <button
+                            id={`sidebar-toggle-btn-${identifier}`}
+                            className="control-btn sidebar-toggle-btn"
+                            onClick={toggleSidebar}
+                            title={isSidebarOpen ? "Close Channels" : "Open Channels"}
+                            aria-label={isSidebarOpen ? "Close Channels" : "Open Channels"}
+                            aria-expanded={isSidebarOpen}
+                            aria-controls={`iptv-sidebar-content-${identifier}`}
+                        >
+                            {isSidebarOpen ? <FaTimes /> : <FaBars />}
+                        </button>
+                    {/* )} */}
+                    <button
+                        className={favouriteButtonClasses}
+                        onClick={(e) => { e.stopPropagation(); setIsFavourite(!isFavourite); }}
+                        title={favouriteButtonTitle}
+                        disabled={favouriteButtonDisabled}
+                        aria-label={favouriteButtonTitle}
+                    >
+                        {favouriteButtonIcon}
+                    </button>
                     <button
                         className="control-btn random-btn"
                         onClick={(e) => { e.stopPropagation(); changeIptvChannel(randomChannel); }}
@@ -381,15 +494,6 @@ export default function IPTVPlayer({
                         {audioButtonIcon}
                     </button>
                     <button
-                        className="control-btn expand-btn"
-                        onClick={handleToggleExpand}
-                        title={expandButtonTitle}
-                        disabled={!currentIptvChannel || iptvLoading}
-                        aria-label={expandButtonTitle}
-                    >
-                        {expandButtonIcon}
-                    </button>
-                    <button
                         className="control-btn close-btn"
                         onClick={handleClose}
                         title="Close Player"
@@ -407,10 +511,19 @@ export default function IPTVPlayer({
                         type="button"                           // Explicitly define button type
                         >
                         <FaTrash />                    
-                    </button>
-                                            
+                    </button>                                           
                 </div>
             </div>
+
+            {/* <button
+                className="control-btn expand-btn"
+                onClick={handleToggleExpand}
+                title={expandButtonTitle}
+                disabled={!currentIptvChannel || iptvLoading}
+                aria-label={expandButtonTitle}
+            >
+                {expandButtonIcon}
+            </button> */}
 
             {!isExpanded && (
                 <div
