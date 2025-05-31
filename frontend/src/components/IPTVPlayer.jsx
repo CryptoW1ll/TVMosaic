@@ -76,6 +76,7 @@ export default function IPTVPlayer({
     });
 
     // Player setup and cleanup
+
     useEffect(() => {
         const videoElement = iptvVideoRef.current;
 
@@ -112,6 +113,12 @@ export default function IPTVPlayer({
                 'No channel selected.');
             return;
         }
+        let hideTimeout;
+        setIsControlsbarOpen(true);
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => {
+            setIsControlsbarOpen(false);
+        }, 5000);
 
         console.log(`Setting up channel: ${currentIptvChannel.name}`);
         cleanup();
@@ -449,70 +456,82 @@ useEffect(() => {
                     {iptvLoading ? "" : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
                 </div> */}
 
-                <div className={`controls-bar ${isControlsbarOpen ? 'open' : ''}`}>                   
-                    <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
-                        {iptvLoading ? "" : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
-                    </div>
-                        {/* {!isExpanded && ( */}
-                        <button
-                            id={`sidebar-toggle-btn-${identifier}`}
-                            className="control-btn sidebar-toggle-btn"
-                            onClick={toggleSidebar}
-                            title={isSidebarOpen ? "Close Channels" : "Open Channels"}
-                            aria-label={isSidebarOpen ? "Close Channels" : "Open Channels"}
-                            aria-expanded={isSidebarOpen}
-                            aria-controls={`iptv-sidebar-content-${identifier}`}
-                        >
-                            {isSidebarOpen ? <FaTimes /> : <FaBars />}
-                        </button>
-                    {/* )} */}
-                    <button
-                        className={favouriteButtonClasses}
-                        onClick={(e) => { e.stopPropagation(); setIsFavourite(!isFavourite); }}
-                        title={favouriteButtonTitle}
-                        disabled={favouriteButtonDisabled}
-                        aria-label={favouriteButtonTitle}
-                    >
-                        {favouriteButtonIcon}
-                    </button>
-                    <button
-                        className="control-btn random-btn"
-                        onClick={(e) => { e.stopPropagation(); changeIptvChannel(randomChannel); }}
-                        title="Random Channel"
-                        disabled={!currentIptvChannel || iptvLoading}
-                        aria-label="Random Channel"
-                    >
-                        <FaRandom />
-                    </button>
-                    <button
-                        className="control-btn audio-btn"
-                        onClick={handleToggleAudio}
-                        title={audioButtonTitle}
-                        disabled={!currentIptvChannel || iptvLoading}
-                        aria-label={audioButtonTitle}
-                    >
-                        {audioButtonIcon}
-                    </button>
-                    <button
-                        className="control-btn close-btn"
-                        onClick={handleClose}
-                        title="Close Player"
-                        aria-label="Close Player"
-                    >
-                        <FaTimes />
-                    </button>
-                    <button
-                        className={deleteButtonClasses}         // e.g. 'control-btn delete-btn' or 'control-btn delete-btn disabled'
-                        onClick={handleDeleteChannel}
-                        title={deleteButtonTitle}                // e.g. "Delete Channel"
-                        disabled={deleteButtonDisabled}          // boolean
-                        aria-label={deleteButtonTitle}
-                        aria-disabled={deleteButtonDisabled}
-                        type="button"                           // Explicitly define button type
-                        >
-                        <FaTrash />                    
-                    </button>                                           
-                </div>
+              <div className={`controls-bar ${isControlsbarOpen ? 'open' : ''}`}>
+  <div className="controls-layout">
+    {/* Left Section - Stream Title */}
+    <div className="controls-left">
+      <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
+        {iptvLoading ? "" : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
+      </div>
+    </div>
+
+    {/* Center Section - Main Controls */}
+    <div className="controls-center">
+      <button
+        className={favouriteButtonClasses}
+        onClick={(e) => { e.stopPropagation(); setIsFavourite(!isFavourite); }}
+        title={favouriteButtonTitle}
+        disabled={favouriteButtonDisabled}
+        aria-label={favouriteButtonTitle}
+      >
+        {favouriteButtonIcon}
+      </button>
+      <button
+        className="control-btn random-btn"
+        onClick={(e) => { e.stopPropagation(); changeIptvChannel(randomChannel); }}
+        title="Random Channel"
+        disabled={!currentIptvChannel || iptvLoading}
+        aria-label="Random Channel"
+      >
+        <FaRandom />
+      </button>
+      <button
+        className="control-btn audio-btn"
+        onClick={handleToggleAudio}
+        title={audioButtonTitle}
+        disabled={!currentIptvChannel || iptvLoading}
+        aria-label={audioButtonTitle}
+      >
+        {audioButtonIcon}
+      </button>
+    </div>
+
+    {/* Right Section - Sidebar and Actions */}
+    <div className="controls-right">
+      <button
+        id={`sidebar-toggle-btn-${identifier}`}
+        className="control-btn sidebar-toggle-btn"
+        onClick={toggleSidebar}
+        title={isSidebarOpen ? "Close Channels" : "Open Channels"}
+        aria-label={isSidebarOpen ? "Close Channels" : "Open Channels"}
+        aria-expanded={isSidebarOpen}
+        aria-controls={`iptv-sidebar-content-${identifier}`}
+      >
+        {isSidebarOpen ? <FaTimes /> : <FaBars />}
+      </button>
+      <button
+        className="control-btn close-btn"
+        onClick={handleClose}
+        title="Close Player"
+        aria-label="Close Player"
+      >
+        <FaTimes />
+      </button>
+      <button
+        className={deleteButtonClasses}
+        onClick={handleDeleteChannel}
+        title={deleteButtonTitle}
+        disabled={deleteButtonDisabled}
+        aria-label={deleteButtonTitle}
+        aria-disabled={deleteButtonDisabled}
+        type="button"
+      >
+        <FaTrash />
+      </button>
+    </div>
+  </div>
+</div>
+
             </div>
 
             {/* <button
