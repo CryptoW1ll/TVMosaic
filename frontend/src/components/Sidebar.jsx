@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
-import '../iptv.css';
+//import '../iptv.css';
+import '../tizen.css'; // Uncomment if you have a separate Tizen CSS file
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTableCellsLarge, faTableCells, faSquarePlus, faSquareMinus} from '@fortawesome/free-solid-svg-icons';
+import { faSquare as faSquareRegular } from '@fortawesome/free-regular-svg-icons';
 
 
 function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScreen, removeScreen, canRemoveScreen, screenCount }) {
-    const [isVisible, setIsVisible] = useState(true); 
+    const [isVisible, setIsVisible] = useState(false); 
 
     const handleAddScreenClick = () => {
         if (screenCount === 1) {
@@ -11,9 +15,11 @@ function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScre
             const grid2x2 = gridTypes.find(grid => grid.name === '2x2');
             if (grid2x2) {
                 changeGridType(grid2x2.id);
+                setIsVisible(false);
             }
         } else {
             addScreen();
+            setIsVisible(false);
         }
     };
 
@@ -46,72 +52,108 @@ function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScre
         );
     }
 
+    function getGridIcon(name) {
+      switch (name) {
+        case '1x1 Grid':
+          return <FontAwesomeIcon icon={faSquareRegular} />;
+        case '2x2 Grid':
+          return <FontAwesomeIcon icon={faTableCellsLarge} />;
+        default:
+          return <FontAwesomeIcon icon={faTableCells} />;
+      }
+    }
+
 
       return (
-        <div className="bg-gray-200 p-4 w-48">
-          <button            
-              className="control-btn sidebar-toggle-btn"
-              //onClick={toggleSidebar}
-              onClick={() => setIsVisible(false)} 
+  <>
+    {!isVisible ? (
+      <button className="toggle-btn" onClick={() => setIsVisible(true)}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M4 6h16M4 12h16m-7 6h7" />
+        </svg>
+      </button>
+    ) : (
+      <div className="tizen-sidebar">
+        <button className="toggle-btn" onClick={() => setIsVisible(false)}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>  
-          </button>
+            <path d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        </button>
 
-        {/* <h2 className="mb-4 font-semibold text-lg">Grids</h2> */}
-
-        {gridTypes.map((grid) => (
+        {/* {gridTypes.map((grid) => (
           <button
             key={grid.id}
             onClick={() => changeGridType(grid.id)}
-            className={`w-full mb-2 px-4 py-2 rounded-md ${
-              currentGrid.id === grid.id
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-800 hover:bg-gray-300'
+            className={`tizen-button ${
+              currentGrid.id === grid.id ? 'active' : ''
             }`}
           >
             {grid.name}
           </button>
+        ))} */}
+       {gridTypes.map((grid, index) => (
+        <button
+          key={grid.id}
+          onClick={() => {
+            changeGridType(grid.id);
+            setIsVisible(false);
+          }}
+          className={`tizen-button ${
+            currentGrid.id === grid.id ? 'active' : ''
+          } ${index === 0 ? 'mt-[60px]' : ''}`}
+        >
+          <span className="flex items-center justify-between w-full">
+            {/* {grid.name} */}
+            {getGridIcon(grid.name)}
+          </span>
+        </button>
         ))}
 
-        {/* Add Screen Button */}
+
         <button
           onClick={handleAddScreenClick}
-          // The button should be enabled if there is 1 screen or if we can add another screen
-          disabled={!(screenCount === 1 || canAddScreen)} 
-          className={`w-full mt-4 px-4 py-2 rounded-md ${
-            (screenCount === 1 || canAddScreen) 
-              ? 'bg-green-600 text-white hover:bg-green-700' 
-              : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+          disabled={!(screenCount === 1 || canAddScreen)}
+          className={`tizen-button ${
+            !(screenCount === 1 || canAddScreen) ? 'disabled' : ''
           }`}
         >
-          Add Screen
+          {/* Add Screen */}
+          <FontAwesomeIcon icon={faSquarePlus} />
         </button>
 
-        {/* Remove Screen Button */}
         <button
           onClick={removeScreen}
           disabled={!canRemoveScreen}
-          className={`w-full mt-4 px-4 py-2 rounded-md ${
-            canRemoveScreen 
-              ? 'bg-red-600 text-white hover:bg-red-700' 
-              : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+          className={`tizen-button ${
+            !canRemoveScreen ? 'disabled' : ''
           }`}
         >
-          Remove Screen
+          {/* Remove Screen */}
+          <FontAwesomeIcon icon={faSquareMinus} />
         </button>
       </div>
-    );
+    )}
+  </>
+);
+
 }
 
 export default Sidebar;
