@@ -31,8 +31,8 @@ builder.Services.AddCors(options =>
 builder.WebHost.UseUrls("http://localhost:5125");
 
 // register the DB
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ApplicationDbContext")));
+builder.Services.AddDbContext<ChannelDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ChannelDbContext")));
 
 builder.Services.AddHostedService<PlaylistSyncService>();
 

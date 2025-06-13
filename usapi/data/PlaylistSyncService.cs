@@ -5,7 +5,11 @@ using Microsoft.EntityFrameworkCore;
 public class PlaylistSyncService : BackgroundService
 {
     private readonly IServiceProvider _sp;
-    private const string Url = "https://iptv-org.github.io/iptv/countries/us.m3u";
+    // private const string Url = "https://iptv-org.github.io/iptv/countries/us.m3u";
+    // private const string Url = "https://iptv-org.github.io/iptv/countries/nz.m3u";
+    // private const string Url = "https://iptv-org.github.io/iptv/countries/uk.m3u";
+    private const string Url = "https://iptv-org.github.io/iptv/index.m3u";
+
 
     public PlaylistSyncService(IServiceProvider sp) => _sp = sp;
 
@@ -56,7 +60,7 @@ public class PlaylistSyncService : BackgroundService
         }
 
         await using var scope = _sp.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<ChannelDbContext>();
 
         //db.Channels.ExecuteDelete();                  // simple: wipe & replace
 

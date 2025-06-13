@@ -11,9 +11,9 @@ namespace usapi.Controllers
     [ApiController]
     public class ChannelController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ChannelDbContext _context;
 
-        public ChannelController(ApplicationDbContext context)
+        public ChannelController(ChannelDbContext context)
         {
             _context = context;
         }

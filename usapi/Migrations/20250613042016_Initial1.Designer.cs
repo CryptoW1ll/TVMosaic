@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace sportsfeedapi.Migrations
+namespace usapi.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250518071401_AddChannels")]
-    partial class AddChannels
+    [DbContext(typeof(ChannelDbContext))]
+    [Migration("20250613042016_Initial1")]
+    partial class Initial1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,11 +25,11 @@ namespace sportsfeedapi.Migrations
 
             modelBuilder.Entity("Channel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ChannelId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChannelId"));
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -43,15 +43,15 @@ namespace sportsfeedapi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StreamUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("TvgId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ChannelId");
 
                     b.ToTable("Channels");
                 });

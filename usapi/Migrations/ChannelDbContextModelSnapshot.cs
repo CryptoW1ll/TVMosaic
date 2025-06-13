@@ -2,19 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace sportsfeedapi.Migrations
+namespace usapi.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250518072631_AddChannels1")]
-    partial class AddChannels1
+    [DbContext(typeof(ChannelDbContext))]
+    partial class ChannelDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

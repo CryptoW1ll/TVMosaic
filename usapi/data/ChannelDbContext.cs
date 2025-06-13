@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 
-public class ApplicationDbContext : DbContext
+public class ChannelDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    public ChannelDbContext(DbContextOptions<ChannelDbContext> options) : base(options)
     {
     }
 
@@ -14,4 +14,10 @@ public class ApplicationDbContext : DbContext
     // {
     //     base.OnModelCreating(modelBuilder); 
     // }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+    }
 }
