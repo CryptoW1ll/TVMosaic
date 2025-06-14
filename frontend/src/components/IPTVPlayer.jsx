@@ -594,14 +594,26 @@ useEffect(() => {
 
                     <div className="iptv-channel-list-wrapper sidebar-section">
                         <div className="iptv-channel-select">
-                            {filteredIptvChannels.map((channel) => (
+                            {filteredIptvChannels.map((channel, index) => (
+                               
+                                //console.log(`Channel ${index}:`, channel), // "Logo" not null
                                 <button
-                                    key={channel.id || channel.url}
+                                    key={`${channel.id || index}-${channel.url || 'unknown'}`}
                                     className={`iptv-channel-btn ${currentIptvChannel?.url === channel.url ? 'active' : ''}`}
                                     onClick={(e) => { e.stopPropagation(); changeIptvChannel(channel); }}
                                     title={channel.name}
                                 >
-                                    {channel.logo && <img src={channel.logo} alt="" className="channel-logo-small" onError={(e) => e.target.style.display = 'none'} />}
+                                    {channel.Logo && (
+                                        <img
+                                            src={channel.Logo}
+                                            alt="Channel logo"
+                                            className="channel-logo-small"
+                                            onError={(e) => {
+                                                console.error(`Failed to load image: ${channel.Logo}`, e);
+                                                e.target.style.display = 'none'; // Hide the image if it fails to load
+                                            }}
+                                        />
+                                    )}
                                     <span className="channel-name">{channel.name}</span>
                                 </button>
                             ))}
