@@ -10,17 +10,8 @@ function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScre
     const [isVisible, setIsVisible] = useState(false); 
 
     const handleAddScreenClick = () => {
-        if (screenCount === 1) {
-            // When there's only one screen, switch to 2x2 grid
-            const grid2x2 = gridTypes.find(grid => grid.name === '2x2');
-            if (grid2x2) {
-                changeGridType(grid2x2.id);
-                setIsVisible(false);
-            }
-        } else {
             addScreen();
             setIsVisible(false);
-        }
     };
 
     if (!isVisible) {
