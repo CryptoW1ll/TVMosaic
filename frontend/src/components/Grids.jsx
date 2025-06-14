@@ -76,15 +76,24 @@ function Grids({ gridLayout, screenCount, handleSelect, slots, selectedSlot, set
           </div>
         ))}
 
-        {Array.from({ length: cols * rows - screenCount }).map((_, index) => (
+        {Array.from({ length: cols * rows }).map((_, index) => (
           <div
             key={`empty-${index}`}
-            className="bg-gray-200 border border-gray-300 bg-center bg-cover"
+            className="bg-gray-200 border border-gray-300 bg-center bg-cover flex items-center justify-center"
             style={{
               backgroundImage: 'url(./Philips_PM5544.svg.png)',
               aspectRatio: '16/9',
             }}
-          />
+          >
+            <button
+              onClick={() => {
+                alert("Add Player Button Clicked");
+              }}
+              className="add-player-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+              Add Player
+            </button>
+          </div>
         ))}
       </div>
 
