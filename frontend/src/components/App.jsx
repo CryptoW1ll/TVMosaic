@@ -1,28 +1,24 @@
-import { useState, useEffect } from "react";
-import SelectionScreen from "./SelectionScreen";
+import { useState} from "react";
 import Sidebar from "./Sidebar";
-import IPTVPlayer from "./IPTVPlayer";
-import DynamicGrid from "./DynamicGid";
-import PlayerGrid from "./PlayerGrid";
+import Grids from "./Grids"; // Updated import
 
 function App() {
   const [screenCount, setScreenCount] = useState(1);
-  const [gridLayout, setGridLayout] = useState("1x1");
-  const [slots, setSlots] = useState({}); // <-- Track what's inside each slot!
-
+  const [gridLayout, setGridLayout] = useState("3x3"); // 1x1
+  const [slots, setSlots] = useState({}); 
   const [selectedSlot, setSelectedSlot] = useState(null);
 
-  const [players, setPlayers] = useState([
-    { id: 1, name: "Screen_1", type: "iptv"},
-    { id: 2, name: "Screen_2", type: "iptv"},
-    { id: 3, name: "Screen_3", type: "iptv"},
-    { id: 4, name: "Screen_4", type: "iptv"},
-    { id: 5, name: "Screen_5", type: "iptv"},
-    { id: 6, name: "Screen_6", type: "iptv"},
-    { id: 7, name: "Screen_7", type: "iptv"},
-    { id: 8, name: "Screen_8", type: "iptv"},
-    { id: 9, name: "Screen_9", type: "iptv"},
-  ]);
+  // const [players, setPlayers] = useState([
+  //   { id: 1, name: "Screen_1", type: "iptv"},
+  //   { id: 2, name: "Screen_2", type: "iptv"},
+  //   { id: 3, name: "Screen_3", type: "iptv"},
+  //   { id: 4, name: "Screen_4", type: "iptv"},
+  //   { id: 5, name: "Screen_5", type: "iptv"},
+  //   { id: 6, name: "Screen_6", type: "iptv"},
+  //   { id: 7, name: "Screen_7", type: "iptv"},
+  //   { id: 8, name: "Screen_8", type: "iptv"},
+  //   { id: 9, name: "Screen_9", type: "iptv"},
+  // ]);
 
 
 
@@ -87,18 +83,14 @@ function App() {
         addScreen={addScreen}
         canAddScreen={canAddScreen}
       />
-      <DynamicGrid
-          gridLayout={gridLayout}
-          screenCount={screenCount}
-          handleSelect={handleSelect}
-          slots={slots}
-          selectedSlot={selectedSlot}
-          setSelectedSlot={setSelectedSlot}
+      <Grids 
+          gridLayout={gridLayout} 
+          screenCount={screenCount} 
+          handleSelect={handleSelect} 
+          slots={slots} 
+          selectedSlot={selectedSlot} 
+          setSelectedSlot={setSelectedSlot} 
         />
-
-        {/* players*/}
-        {/* <PlayerGrid players={players}/> */}
-
     </div>
   );
 }
