@@ -74,72 +74,63 @@ function Sidebar({ gridTypes, currentGrid, changeGridType, addScreen, canAddScre
       </button>
     ) : (
       <div className="tizen-sidebar">
-        <button className="toggle-btn" onClick={() => setIsVisible(false)}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M4 6h16M4 12h16m-7 6h7" />
-          </svg>
-        </button>
+        <div className="hamburger-row mb-4">
+          <button className="toggle-btn" onClick={() => setIsVisible(false)}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
+        </div>
 
-        {/* {gridTypes.map((grid) => (
+        <div className="grid-types-row flex flex-row gap-2 mb-4">
+          {gridTypes.map((grid) => (
+            <button
+              key={grid.id}
+              onClick={() => {
+                changeGridType(grid.id);
+                setIsVisible(false);
+              }}
+              className={`tizen-button ${
+                currentGrid.id === grid.id ? 'active' : ''
+              }`}
+            >
+              <span className="flex items-center justify-between w-full">
+                {getGridIcon(grid.name)}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="add-iptv-row flex flex-row gap-2">
           <button
-            key={grid.id}
-            onClick={() => changeGridType(grid.id)}
+            onClick={handleAddScreenClick}
+            disabled={!(screenCount === 1 || canAddScreen)}
             className={`tizen-button ${
-              currentGrid.id === grid.id ? 'active' : ''
+              !(screenCount === 1 || canAddScreen) ? 'disabled' : ''
             }`}
           >
-            {grid.name}
+            <FontAwesomeIcon icon={faSquarePlus} />
           </button>
-        ))} */}
-       {gridTypes.map((grid, index) => (
-        <button
-          key={grid.id}
-          onClick={() => {
-            changeGridType(grid.id);
-            setIsVisible(false);
-          }}
-          className={`tizen-button ${
-            currentGrid.id === grid.id ? 'active' : ''
-          } ${index === 0 ? 'mt-[60px]' : ''}`}
-        >
-          <span className="flex items-center justify-between w-full">
-            {/* {grid.name} */}
-            {getGridIcon(grid.name)}
-          </span>
-        </button>
-        ))}
 
-
-        <button
-          onClick={handleAddScreenClick}
-          disabled={!(screenCount === 1 || canAddScreen)}
-          className={`tizen-button ${
-            !(screenCount === 1 || canAddScreen) ? 'disabled' : ''
-          }`}
-        >
-          {/* Add Screen */}
-          <FontAwesomeIcon icon={faSquarePlus} />
-        </button>
-
-        <button
-          onClick={removeScreen}
-          disabled={!canRemoveScreen}
-          className={`tizen-button ${
-            !canRemoveScreen ? 'disabled' : ''
-          }`}
-        >
-          {/* Remove Screen */}
-          <FontAwesomeIcon icon={faSquareMinus} />
-        </button>
+          <button
+            onClick={removeScreen}
+            disabled={!canRemoveScreen}
+            className={`tizen-button ${
+              !canRemoveScreen ? 'disabled' : ''
+            }`}
+          >
+            <FontAwesomeIcon icon={faSquareMinus} />
+          </button>
+        </div>
       </div>
     )}
   </>

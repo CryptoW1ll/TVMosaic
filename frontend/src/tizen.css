@@ -1,18 +1,26 @@
 .tizen-sidebar {
   background: rgba(20, 20, 20, 0.9);
   color: white;
-  width: 100px;
+  width: 10%; /* Adjusted to take up 20% of the screen width */
   height: 100%;
   padding: 20px;
-  /* border-radius: 12px; */
   font-family: 'Segoe UI', sans-serif;
   position: fixed;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
+  right: auto; /* Ensure the sidebar does not overlap the grid */
   z-index: 100;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
+  justify-content: space-between; /* Ensures content is spaced out */
+}
+
+.tizen-sidebar .grid-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Adds spacing between grid setting buttons */
+  margin-top: auto; /* Pushes grid settings to the bottom */
 }
 
 .tizen-button {
@@ -65,3 +73,19 @@
 .toggle-btn:hover {
   background: rgba(60, 60, 60, 0.9);
 }
+
+body {
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.relative.flex-1 {
+  margin-left: 13%; /* Adjusted to match the sidebar width */
+  width: calc(100% - 13%); /* Ensure the grid takes up the remaining space */
+}
+
+/* .relative.flex-2 {
+  margin-left: 10%;
+  width: calc(100vw - 10%); 
+  overflow-x: hidden;
+  margin-right: 1px;
+} */

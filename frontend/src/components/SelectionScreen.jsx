@@ -18,11 +18,10 @@ const SelectionScreen = ({ onSelect }) => {
   const [iptvChannels, setIptvChannels] = useState([]); // State to hold IPTV channels
 
   useEffect(() => {
-    // Fetch channels from your API
     const fetchChannels = async () => {
       try {
         const channels = await fetchAllChannels();
-        setIptvChannels(channels); // Assuming channels is an array of channel objects
+        setIptvChannels(channels);
         console.log('Fetched channels:', channels);
       } catch (error) {
         console.error('Error fetching channels:', error);
@@ -155,7 +154,7 @@ const SelectionScreen = ({ onSelect }) => {
           📺 IPTV Channels
         </button>
 
-        <button
+        {/* <button
           className="selection-button bg-orange-400 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
 
           onClick={() => handleSelect('plex')}
@@ -185,7 +184,7 @@ const SelectionScreen = ({ onSelect }) => {
           onClick={() => handleSelect('jellyfin')}
         >
           🏠 Jellyfin
-        </button>
+        </button> */}
       </div>
     </div>
   );

@@ -150,16 +150,6 @@ export default function IPTVPlayer({
                 setIptvLoading(false); 
                 setIptvError(null);
 
-                // delete the channel
-                //deleteChannel(currentIptvChannel.channelId);
-                //setCurrentIptvChannel(null);
-                //setCurrentCategory('All');
-                //setSearchTerm('');
-                //setIsSidebarOpen(false);
-                //setIptvLoading(false);
-                //setIptvError(null);
-                //setShowIptvInfo(false);
-
                 // set new random channel
                 const newChannel = getRandomChannel(safeChannels);
                 if (newChannel) {
@@ -170,15 +160,13 @@ export default function IPTVPlayer({
                     if (onChannelChange) onChannelChange(newChannel);
                 }
                 setShowIptvInfo(true);
+                setIptvError(`Error: ${data.details || data.type}`);
+                console.error('HLS Error:', data);
+                if (data.fatal) {
+                    hls.destroy();
+                    iptvHlsRef.current = null;
+                }
 
-                
-
-                //setIptvError(`Error: ${data.details || data.type}`);
-                // setShowIptvInfo(true);               
-                // if (data.fatal) {
-                //     hls.destroy();
-                //     iptvHlsRef.current = null;
-                // }
             });
 
             hls.loadSource(currentIptvChannel.url);
@@ -552,7 +540,7 @@ useEffect(() => {
                     aria-hidden={!isSidebarOpen}
                 >
                     <div className="sidebar-header">
-                        <h3>Channels</h3>
+                        {/* <h3>Channels</h3> */}
                         {/* <button
                             className="control-btn sidebar-close-btn"
                             onClick={toggleSidebar}
@@ -564,7 +552,7 @@ useEffect(() => {
                     </div>
 
                     <div className="iptv-category-filter sidebar-section">
-                        <label htmlFor={`category-select-${identifier}`}>Category:</label>
+                        <label htmlFor={`category-select-${identifier}`}></label>
                         <select
                             id={`category-select-${identifier}`}
                             value={currentCategory}

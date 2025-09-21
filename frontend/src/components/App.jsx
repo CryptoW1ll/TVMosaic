@@ -90,6 +90,7 @@ function App() {
           slots={slots} 
           selectedSlot={selectedSlot} 
           setSelectedSlot={setSelectedSlot} 
+          handleAddScreenClick={addScreen} // Pass addScreen as handleAddScreenClick
         />
     </div>
   );
