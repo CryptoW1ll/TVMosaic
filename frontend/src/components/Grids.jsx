@@ -3,9 +3,24 @@ import IPTVPlayer from "./IPTVPlayer";
 import SelectionScreen from "./SelectionScreen";
 
 function Grids({ gridLayout, screenCount, handleSelect, slots, selectedSlot, setSelectedSlot, handleAddScreenClick }) {
+  // Helper to get a random channel excluding busted channelId 29952
+  function getRandomChannel(slot) {
+    if (!slot?.data || !Array.isArray(slot.data.channels)) return slot?.data;
+    const filtered = slot.data.channels.filter(c => c.channelId !== 29952);
+    if (filtered.length === 0) return null;
+    const randomIndex = Math.floor(Math.random() * filtered.length);
+    return filtered[randomIndex];
+  }
+  // Debug: Log slot data for each player
+  useEffect(() => {
+    for (let i = 0; i < screenCount; i++) {
+      console.log(`[DEBUG] Grids: slot[${i}]`, slots[i]);
+    }
+  }, [slots, screenCount]);
   const [cols, rows] = gridLayout.split("x").map(Number);
   const [isNarrow, setIsNarrow] = useState(window.innerWidth < 960);
   const containerRef = useRef(null);
+  const [mutedStates, setMutedStates] = useState({});
 
   useEffect(() => {
     const handleResize = () => {
@@ -74,8 +89,14 @@ function Grids({ gridLayout, screenCount, handleSelect, slots, selectedSlot, set
               setSelectedSlot(index);
             }}
           >
-            {slots[index]?.type === "iptv" 
-            ? (<IPTVPlayer data={slots[index].data} audioEnabled={selectedSlot === index} />) 
+            {slots[index]?.type === "iptv" && slots[index]?.data && slots[index]?.data.url
+            ? (<IPTVPlayer 
+                data={index === 0 ? { ...slots[index].data, channelId: undefined } : slots[index].data} // force random for player 0
+                channels={Object.values(slots).map(s => s.data).filter(c => c && c.url && c.channelId !== 29952)}
+                audioEnabled={selectedSlot === index} 
+                muted={selectedSlot !== index} 
+                onRequestUnmute={() => setSelectedSlot(selectedSlot === index ? null : index)}
+              />) 
             : (<SelectionScreen onSelect={(slotId, type, data) => handleSelect(index, type, data)} />)
             }
           </div>

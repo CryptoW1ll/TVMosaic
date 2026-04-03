@@ -1,26 +1,83 @@
-import { useState} from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import Grids from "./Grids"; // Updated import
+import Grids from "./Grids";
+import { fetchAllChannels } from "./api";
+
+// Helper to get a random channel
+function getRandomChannel(channelList) {
+  if (!Array.isArray(channelList) || channelList.length === 0) return null;
+  const filtered = channelList.filter((c) => c.channelId !== 29952);
+  if (filtered.length === 0) return null;
+  const randomIndex = Math.floor(Math.random() * filtered.length);
+  return filtered[randomIndex];
+}
 
 function App() {
   const [screenCount, setScreenCount] = useState(1);
-  const [gridLayout, setGridLayout] = useState("3x3"); // 1x1
-  const [slots, setSlots] = useState({}); 
-  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [gridLayout, setGridLayout] = useState("3x3");
+  const [slots, setSlots] = useState({});
+  const [selectedSlot, setSelectedSlot] = useState(0);
+  const [channels, setChannels] = useState([]);
+  const [channelsLoaded, setChannelsLoaded] = useState(false);
 
-  // const [players, setPlayers] = useState([
-  //   { id: 1, name: "Screen_1", type: "iptv"},
-  //   { id: 2, name: "Screen_2", type: "iptv"},
-  //   { id: 3, name: "Screen_3", type: "iptv"},
-  //   { id: 4, name: "Screen_4", type: "iptv"},
-  //   { id: 5, name: "Screen_5", type: "iptv"},
-  //   { id: 6, name: "Screen_6", type: "iptv"},
-  //   { id: 7, name: "Screen_7", type: "iptv"},
-  //   { id: 8, name: "Screen_8", type: "iptv"},
-  //   { id: 9, name: "Screen_9", type: "iptv"},
-  // ]);
+  // Debug: Log channels whenever they change
+  useEffect(() => {
+    console.log("[DEBUG] channels:", channels);
+  }, [channels]);
 
+  useEffect(() => {
+    async function loadChannels() {
+      try {
+        console.log("[DEBUG] fetchAllChannels called in App.jsx");
+        const chs = await fetchAllChannels();
+        console.log("[DEBUG] fetchAllChannels result in App.jsx:", chs);
+        setChannels(chs);
+        setChannelsLoaded(true);
+        if (chs && chs.length > 0) {
+          const randomChannel = getRandomChannel(chs);
+          setSlots({ 0: { type: "iptv", data: randomChannel } });
+          setSelectedSlot(0);
+        }
+      } catch (e) {
+        setChannelsLoaded(true);
+        console.error("Failed to fetch channels", e);
+      }
+    }
+    loadChannels();
+  }, []);
 
+  useEffect(() => {
+    // Reset selectedSlot to 0 if grid changes or channels reload
+    setSelectedSlot(0);
+  }, [gridLayout, screenCount, channelsLoaded]);
+
+  // Debug: Log slots whenever they change
+  useEffect(() => {
+    console.log("[DEBUG] slots:", slots);
+  }, [slots]);
+
+  // Debug: Log random channel selection
+  useEffect(() => {
+    if (channels && channels.length > 0) {
+      const random = getRandomChannel(channels);
+      console.log("[DEBUG] Random channel selected:", random);
+    }
+  }, [channels]);
+
+  // Only update slots for new screens, not all screens
+  useEffect(() => {
+    if (channelsLoaded && channels.length > 0 && screenCount > 0) {
+      setSlots((prev) => {
+        const newSlots = { ...prev };
+        for (let i = 0; i < screenCount; i++) {
+          if (!newSlots[i]) {
+            newSlots[i] = { type: "iptv", data: getRandomChannel(channels) };
+          }
+        }
+        return newSlots;
+      });
+    }
+  }, [channelsLoaded, channels, screenCount]);
 
   const gridTypes = [
     { id: "1x1", name: "1x1 Grid" },
@@ -48,9 +105,13 @@ function App() {
 
   const addScreen = () => {
     const maxScreens = gridLayout === "1x1" ? 1 : gridLayout === "2x2" ? 4 : 9;
-    //const maxScreens = cols * rows;           // always correct
-
-    if (screenCount < maxScreens) {
+    if (screenCount < maxScreens && channels.length > 0) {
+      const nextSlot = screenCount;
+      const channel = getRandomChannel(channels); // Use a random channel for the new player
+      setSlots((prev) => ({
+        ...prev,
+        [nextSlot]: { type: "iptv", data: channel },
+      }));
       setScreenCount(screenCount + 1);
     }
   };
@@ -65,8 +126,7 @@ function App() {
         ...prev,
         [slotId]: { type: "iptv", data },
       }));
-    }
-    else if (type === "plex") {
+    } else if (type === "plex") {
       setSlots((prev) => ({
         ...prev,
         [slotId]: { type: "plex", data },
@@ -83,15 +143,21 @@ function App() {
         addScreen={addScreen}
         canAddScreen={canAddScreen}
       />
-      <Grids 
-          gridLayout={gridLayout} 
-          screenCount={screenCount} 
-          handleSelect={handleSelect} 
-          slots={slots} 
-          selectedSlot={selectedSlot} 
-          setSelectedSlot={setSelectedSlot} 
-          handleAddScreenClick={addScreen} // Pass addScreen as handleAddScreenClick
+      {channelsLoaded ? (
+        <Grids
+          gridLayout={gridLayout}
+          screenCount={screenCount}
+          handleSelect={handleSelect}
+          slots={slots}
+          selectedSlot={selectedSlot}
+          setSelectedSlot={setSelectedSlot}
+          handleAddScreenClick={addScreen}
         />
+      ) : (
+        <div className="flex-1 flex items-center justify-center text-lg text-white bg-black">
+          Loading channels...
+        </div>
+      )}
     </div>
   );
 }

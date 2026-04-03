@@ -20,9 +20,10 @@ const SelectionScreen = ({ onSelect }) => {
   useEffect(() => {
     const fetchChannels = async () => {
       try {
+        console.log("[DEBUG] fetchAllChannels called in SelectionScreen.jsx");
         const channels = await fetchAllChannels();
+        console.log("[DEBUG] fetchAllChannels result in SelectionScreen.jsx:", channels);
         setIptvChannels(channels);
-        console.log('Fetched channels:', channels);
       } catch (error) {
         console.error('Error fetching channels:', error);
       }

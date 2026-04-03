@@ -11,20 +11,47 @@ import '../App.css';
 export default function IPTVPlayer({
     identifier,
     channels = [],
-    initialChannel,
+    data,
     isExpanded = false,
     hasAudio = false,
     onToggleAudio,
     onToggleExpand,
     onClose,
     onCategoryChange,
-    onChannelChange
+    onChannelChange,
+    muted = true,
+    onRequestUnmute
 }) {
+    // Debug: Log the data prop received
+    useEffect(() => {
+        console.log('[DEBUG] IPTVPlayer data prop:', data);
+    }, [data]);
     // State
+    // Helper function
+    // Exclude busted channelId 29952 from random selection
+    function getRandomChannel(channelList) {
+        if (!Array.isArray(channelList) || channelList.length === 0) return null;
+        const filtered = channelList.filter(c => c.channelId !== 29952);
+        if (filtered.length === 0) return null;
+        const randomIndex = Math.floor(Math.random() * filtered.length);
+        return filtered[randomIndex];
+    }
+
+    // Always use the data prop for the current channel, fallback to random channel if missing
     const [currentIptvChannel, setCurrentIptvChannel] = useState(() => {
-        if (initialChannel && initialChannel.url) return initialChannel;
-        return getRandomChannel(channels);
+        if (data && data.url) return data;
+        if (channels && channels.length > 0) return getRandomChannel(channels);
+        return null;
     });
+
+    // Update currentIptvChannel whenever data changes
+    useEffect(() => {
+        if (data && data.url) {
+            setCurrentIptvChannel(data);
+        } else if (channels && channels.length > 0) {
+            setCurrentIptvChannel(getRandomChannel(channels));
+        }
+    }, [data, channels]);
     const [currentCategory, setCurrentCategory] = useState(
         currentIptvChannel?.category || 'All'
     );
@@ -250,19 +277,7 @@ useEffect(() => {
 }, []);
 
     
-    useEffect(() => {
-        if (initialChannel && initialChannel.url) {
-            // Ensure the channel has an ID before setting it
-            //if (!initialChannel.id) {
-            if (!initialChannel.channelId) {
-                // this is always triggered!
-                // IPTVPlayer.jsx:195 Initial channel has no ID: {channelId: 145, name: 'MAV Select USA', url: 'https://d3h07n6l1exhds.cloudfront.net/v1/master/37…6c5b73da68a62b09d1/cc-0z2yyo4dxctc7/playlist.m3u8', category: 'Motorsports', icon: '⚽'}
-                console.warn('Initial channel has no ID:', initialChannel);
-            }
-            setCurrentIptvChannel(initialChannel);
-            setCurrentCategory(initialChannel.category || 'All');
-        }
-    }, [initialChannel]);
+    // Removed initialChannel logic; now always use data prop
 
     // Auto-hide info overlay
     useEffect(() => {
@@ -343,7 +358,7 @@ useEffect(() => {
 
     const handleToggleAudio = (e) => {
         e.stopPropagation();
-        onToggleAudio();
+        if (onRequestUnmute) onRequestUnmute();
     };
 
     // const handleToggleExpand = (e) => {
@@ -369,8 +384,8 @@ useEffect(() => {
 
     // Render
     const containerClasses = `video-container iptv-player ${isExpanded ? 'expanded' : ''} ${hasAudio ? 'audio-active' : ''} ${!isExpanded && isSidebarOpen ? 'sidebar-open' : ''}`;
-    const audioButtonIcon = hasAudio ? <FaVolumeUp /> : <FaVolumeMute />;
-    const audioButtonTitle = hasAudio ? "Mute" : "Unmute";
+    const audioButtonIcon = !muted ? <FaVolumeUp /> : <FaVolumeMute />;
+    const audioButtonTitle = !muted ? "Mute" : "Unmute";
     //const expandButtonIcon = isExpanded ? <FaCompress /> : <FaExpand />;
     const expandButtonTitle = isExpanded ? "Exit Fullscreen" : "Toggle Fullscreen";
     const randomChannel = isExpanded ? currentIptvChannel : getRandomChannel(filteredIptvChannels);
@@ -388,12 +403,18 @@ useEffect(() => {
     const favouriteButtonClasses = `control-btn favourite-btn ${iptvLoading ? 'loading' : ''}`;
     const favouriteButtonDisabled = !currentIptvChannel || iptvLoading;
 
+    useEffect(() => {
+        if (iptvVideoRef.current) {
+            iptvVideoRef.current.muted = muted;
+        }
+    }, [muted]);
+
     return (
         // <div className={containerClasses}>
         // <div className={containerClasses} ref={playerRef}>
         <div className={`iptv-player-container ${containerClasses}`} ref={playerRef}>
 
-            <video ref={iptvVideoRef} playsInline muted={!hasAudio} autoPlay={false} />
+            <video ref={iptvVideoRef} playsInline muted={muted} autoPlay={false} />
 
             {(iptvLoading || iptvError) && (
                 <div className="video-overlay status-overlay">
@@ -401,23 +422,21 @@ useEffect(() => {
                     {iptvError && (
                         <div className="error-message">
                             {iptvError}
-                            <button 
+                            {/* <button 
                                 className="retry-button"
-                                onClick={() => setIptvError(null)}
+                                onClick={() => {
+                                    setIptvError(null);
+                                    // Shuffle to a random channel on error dismiss
+                                    if (channels && channels.length > 0) {
+                                        const random = getRandomChannel(channels);
+                                        if (random) setCurrentIptvChannel(random);
+                                    }
+                                }}
                             >
                                 Dismiss
-                            </button>
+                            </button> */}
                         </div>
                     )}
-                    {/* {currentIptvChannel?.channelId && (
-                        <button 
-                            className="delete-button" 
-                            onClick={handleDeleteChannel}
-                            disabled={iptvLoading}
-                        >
-                            {iptvLoading ? 'Loading...' : 'Delete Channel'}
-                        </button>
-                    )} */}
                 </div>
             )}
 
@@ -465,14 +484,18 @@ useEffect(() => {
         {favouriteButtonIcon}
       </button>
       <button
-        className="control-btn random-btn"
-        onClick={(e) => { e.stopPropagation(); changeIptvChannel(randomChannel); }}
-        title="Random Channel"
-        disabled={!currentIptvChannel || iptvLoading}
-        aria-label="Random Channel"
-      >
-        <FaRandom />
-      </button>
+                className="control-btn random-btn"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    const newRandom = getRandomChannel(filteredIptvChannels);
+                    if (newRandom) changeIptvChannel(newRandom);
+                }}
+                title="Random Channel"
+                disabled={!currentIptvChannel || iptvLoading}
+                aria-label="Random Channel"
+            >
+                <FaRandom />
+            </button>
       <button
         className="control-btn audio-btn"
         onClick={handleToggleAudio}
