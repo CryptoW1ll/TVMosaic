@@ -6,7 +6,6 @@ import {
 } from 'react-icons/fa';
 import { deleteChannel } from './api';
 import '../iptv.css';
-import '../App.css';
 
 export default function IPTVPlayer({
     identifier,
@@ -27,20 +26,28 @@ export default function IPTVPlayer({
         console.log('[DEBUG] IPTVPlayer data prop:', data);
     }, [data]);
     // State
-    // Helper function
-    // Exclude busted channelId 29952 from random selection
-    function getRandomChannel(channelList) {
+    // Exclude busted channelId 29952 from random selection.
+    function pickRandomChannel(channelList) {
         if (!Array.isArray(channelList) || channelList.length === 0) return null;
-        const filtered = channelList.filter(c => c.channelId !== 29952);
+        const filtered = channelList.filter((c) => c && c.channelId !== 29952);
         if (filtered.length === 0) return null;
         const randomIndex = Math.floor(Math.random() * filtered.length);
         return filtered[randomIndex];
     }
 
+    // Cycle to the next channel in the currently visible list (wraps at end).
+    function getNextChannelInList(channelList, currentUrl) {
+        if (!Array.isArray(channelList) || channelList.length === 0) return null;
+        if (!currentUrl) return channelList[0];
+        const currentIndex = channelList.findIndex((c) => c?.url === currentUrl);
+        if (currentIndex === -1) return channelList[0];
+        return channelList[(currentIndex + 1) % channelList.length];
+    }
+
     // Always use the data prop for the current channel, fallback to random channel if missing
     const [currentIptvChannel, setCurrentIptvChannel] = useState(() => {
         if (data && data.url) return data;
-        if (channels && channels.length > 0) return getRandomChannel(channels);
+        if (channels && channels.length > 0) return pickRandomChannel(channels);
         return null;
     });
 
@@ -49,7 +56,7 @@ export default function IPTVPlayer({
         if (data && data.url) {
             setCurrentIptvChannel(data);
         } else if (channels && channels.length > 0) {
-            setCurrentIptvChannel(getRandomChannel(channels));
+            setCurrentIptvChannel(pickRandomChannel(channels));
         }
     }, [data, channels]);
     const [currentCategory, setCurrentCategory] = useState(
@@ -82,13 +89,6 @@ export default function IPTVPlayer({
     const sidebarRef = useRef(null);
     const infoTimeoutRef = useRef(null);
     const playerRef = useRef(null);
-
-    // Helper function
-    function getRandomChannel(channelList) {
-        if (!Array.isArray(channelList) || channelList.length === 0) return null;
-        const randomIndex = Math.floor(Math.random() * channelList.length);
-        return channelList[randomIndex];
-    }
 
     // Filter channels
     const safeChannels = Array.isArray(channels) ? channels : [];
@@ -177,8 +177,10 @@ export default function IPTVPlayer({
                 setIptvLoading(false); 
                 setIptvError(null);
 
-                // set new random channel
-                const newChannel = getRandomChannel(safeChannels);
+                // Move to the next channel in the currently filtered list on stream error.
+                const newChannel =
+                    getNextChannelInList(filteredIptvChannels, currentIptvChannel?.url) ||
+                    pickRandomChannel(safeChannels);
                 if (newChannel) {
                     setCurrentIptvChannel(newChannel);
                     setCurrentCategory(newChannel.category || 'All');
@@ -356,6 +358,13 @@ useEffect(() => {
         setSearchTerm(e.target.value);
     };
 
+    const clearFilters = (e) => {
+        e.stopPropagation();
+        setCurrentCategory('All');
+        setSearchTerm('');
+        if (onCategoryChange) onCategoryChange('All');
+    };
+
     const handleToggleAudio = (e) => {
         e.stopPropagation();
         if (onToggleAudio) {
@@ -392,8 +401,6 @@ useEffect(() => {
     const audioButtonTitle = !muted ? "Mute" : "Unmute";
     //const expandButtonIcon = isExpanded ? <FaCompress /> : <FaExpand />;
     const expandButtonTitle = isExpanded ? "Exit Fullscreen" : "Toggle Fullscreen";
-    const randomChannel = isExpanded ? currentIptvChannel : getRandomChannel(filteredIptvChannels);
-
     // delete button
     const deleteButtonIcon = <FaTrash />;
     const deleteButtonTitle = "Delete Channel";
@@ -427,150 +434,89 @@ useEffect(() => {
     }, [muted]);
 
     return (
-        // <div className={containerClasses}>
-        // <div className={containerClasses} ref={playerRef}>
         <div className={`iptv-player-container ${containerClasses}`} ref={playerRef}>
-
             <video ref={iptvVideoRef} playsInline muted={muted} autoPlay={false} />
 
             {(iptvLoading || iptvError) && (
                 <div className="video-overlay status-overlay">
-                    {iptvLoading && <div className="spinner"></div>}
-                    {iptvError && (
-                        <div className="error-message">
-                            {iptvError}
-                            {/* <button 
-                                className="retry-button"
-                                onClick={() => {
-                                    setIptvError(null);
-                                    // Shuffle to a random channel on error dismiss
-                                    if (channels && channels.length > 0) {
-                                        const random = getRandomChannel(channels);
-                                        if (random) setCurrentIptvChannel(random);
-                                    }
-                                }}
-                            >
-                                Dismiss
-                            </button> */}
-                        </div>
-                    )}
+                    {iptvLoading && <div className="tv-loader" aria-label="Loading" role="status" />}
+                    {iptvError && <div className="error-message">{iptvError}</div>}
                 </div>
             )}
 
             <div className={`iptv-info ${showIptvInfo ? 'show' : ''} ${iptvError ? (iptvError.startsWith('Error') ? 'error' : 'warning') : ''}`}>
-                {/* {iptvError ? iptvError : iptvLoading ? `Loading: ${currentIptvChannel?.name}` : `Playing: ${currentIptvChannel?.name || "No Channel"}`} */}
             </div>
 
             <div className="video-controls">
-                
-                {/* {!isExpanded && (
-                    <button
-                        id={`sidebar-toggle-btn-${identifier}`}
-                        className="control-btn sidebar-toggle-btn"
-                        onClick={toggleSidebar}
-                        title={isSidebarOpen ? "Close Channels" : "Open Channels"}
-                        aria-label={isSidebarOpen ? "Close Channels" : "Open Channels"}
-                        aria-expanded={isSidebarOpen}
-                        aria-controls={`iptv-sidebar-content-${identifier}`}
-                    >
-                        {isSidebarOpen ? <FaTimes /> : <FaBars />}
-                    </button>
-                )} */}
-                {/* <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
-                    {iptvLoading ? "" : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
-                </div> */}
+                <div className={`controls-bar ${isControlsbarOpen ? 'open' : ''}`}>
+                    <div className="controls-layout">
+                        <div className="controls-left">
+                            <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
+                                {iptvLoading ? '' : iptvError ? 'Error' : currentIptvChannel?.name || 'No Channel'}
+                            </div>
+                        </div>
 
-              <div className={`controls-bar ${isControlsbarOpen ? 'open' : ''}`}>
-  <div className="controls-layout">
-    {/* Left Section - Stream Title */}
-    <div className="controls-left">
-      <div className={`stream-title ${isExpanded ? 'title-center-expanded' : ''} ${isSidebarOpen ? 'title-hidden-sidebar' : ''}`}>
-        {iptvLoading ? "" : iptvError ? "Error" : currentIptvChannel?.name || "No Channel"}
-      </div>
-    </div>
+                        <div className="controls-center">
+                            <button
+                                className={favouriteButtonClasses}
+                                onClick={(e) => { e.stopPropagation(); setIsFavourite(!isFavourite); }}
+                                title={favouriteButtonTitle}
+                                disabled={favouriteButtonDisabled}
+                                aria-label={favouriteButtonTitle}
+                            >
+                                {favouriteButtonIcon}
+                            </button>
+                            <button
+                                className="control-btn random-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    const nextChannel = getNextChannelInList(filteredIptvChannels, currentIptvChannel?.url);
+                                    if (nextChannel) changeIptvChannel(nextChannel);
+                                }}
+                                title="Next Channel"
+                                disabled={!currentIptvChannel || iptvLoading}
+                                aria-label="Next Channel"
+                            >
+                                <FaRandom />
+                            </button>
+                            <button
+                                className="control-btn audio-btn"
+                                onClick={handleToggleAudio}
+                                title={audioButtonTitle}
+                                disabled={!currentIptvChannel || iptvLoading}
+                                aria-label={audioButtonTitle}
+                            >
+                                {audioButtonIcon}
+                            </button>
+                        </div>
 
-    {/* Center Section - Main Controls */}
-    <div className="controls-center">
-      <button
-        className={favouriteButtonClasses}
-        onClick={(e) => { e.stopPropagation(); setIsFavourite(!isFavourite); }}
-        title={favouriteButtonTitle}
-        disabled={favouriteButtonDisabled}
-        aria-label={favouriteButtonTitle}
-      >
-        {favouriteButtonIcon}
-      </button>
-      <button
-                className="control-btn random-btn"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    const newRandom = getRandomChannel(filteredIptvChannels);
-                    if (newRandom) changeIptvChannel(newRandom);
-                }}
-                title="Random Channel"
-                disabled={!currentIptvChannel || iptvLoading}
-                aria-label="Random Channel"
-            >
-                <FaRandom />
-            </button>
-      <button
-        className="control-btn audio-btn"
-        onClick={handleToggleAudio}
-        title={audioButtonTitle}
-        disabled={!currentIptvChannel || iptvLoading}
-        aria-label={audioButtonTitle}
-      >
-        {audioButtonIcon}
-      </button>
-    </div>
-
-    {/* Right Section - Sidebar and Actions */}
-    <div className="controls-right">
-      <button
-        id={`sidebar-toggle-btn-${identifier}`}
-        className="control-btn sidebar-toggle-btn"
-        onClick={toggleSidebar}
-        title={isSidebarOpen ? "Close Channels" : "Open Channels"}
-        aria-label={isSidebarOpen ? "Close Channels" : "Open Channels"}
-        aria-expanded={isSidebarOpen}
-        aria-controls={`iptv-sidebar-content-${identifier}`}
-      >
-        {isSidebarOpen ? <FaTimes /> : <FaBars />}
-      </button>
-      <button
-        className="control-btn close-btn"
-        onClick={handleClose}
-        title="Close Player"
-        aria-label="Close Player"
-      >
-        <FaTimes />
-      </button>
-      <button
-        className={deleteButtonClasses}
-        onClick={handleDeleteChannel}
-        title={deleteButtonTitle}
-        disabled={deleteButtonDisabled}
-        aria-label={deleteButtonTitle}
-        aria-disabled={deleteButtonDisabled}
-        type="button"
-      >
-        <FaTrash />
-      </button>
-    </div>
-  </div>
-</div>
-
+                        <div className="controls-right">
+                            <button
+                                id={`sidebar-toggle-btn-${identifier}`}
+                                className="control-btn sidebar-toggle-btn"
+                                onClick={toggleSidebar}
+                                title={isSidebarOpen ? 'Close Channels' : 'Open Channels'}
+                                aria-label={isSidebarOpen ? 'Close Channels' : 'Open Channels'}
+                                aria-expanded={isSidebarOpen}
+                                aria-controls={`iptv-sidebar-content-${identifier}`}
+                            >
+                                {isSidebarOpen ? <FaTimes /> : <FaBars />}
+                            </button>
+                            <button
+                                className={deleteButtonClasses}
+                                onClick={handleDeleteChannel}
+                                title={deleteButtonTitle}
+                                disabled={deleteButtonDisabled}
+                                aria-label={deleteButtonTitle}
+                                aria-disabled={deleteButtonDisabled}
+                                type="button"
+                            >
+                                <FaTrash />
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            {/* <button
-                className="control-btn expand-btn"
-                onClick={handleToggleExpand}
-                title={expandButtonTitle}
-                disabled={!currentIptvChannel || iptvLoading}
-                aria-label={expandButtonTitle}
-            >
-                {expandButtonIcon}
-            </button> */}
 
             {!isExpanded && (
                 <div
@@ -579,55 +525,66 @@ useEffect(() => {
                     id={`iptv-sidebar-content-${identifier}`}
                     aria-hidden={!isSidebarOpen}
                 >
-                    <div className="sidebar-header">
-                        {/* <h3>Channels</h3> */}
-                        {/* <button
-                            className="control-btn sidebar-close-btn"
-                            onClick={toggleSidebar}
-                            title="Close Channels"
-                            aria-label="Close Channels"
-                        >
-                            <FaTimes />
-                        </button> */}
-                    </div>
+                    <div className="iptv-sidebar-top">
+                        <div className="iptv-browse-header">
+                            <h3 className="iptv-browse-title">Browse Channels</h3>
+                            <span className="iptv-browse-subtitle">{filteredIptvChannels.length} of {safeChannels.length}</span>
+                        </div>
 
-                    <div className="iptv-category-filter sidebar-section">
-                        <label htmlFor={`category-select-${identifier}`}></label>
-                        <select
-                            id={`category-select-${identifier}`}
-                            value={currentCategory}
-                            onChange={(e) => filterChannelsByCategory(e.target.value)}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {uniqueCategories.map(category => (
-                                <option key={category} value={category}>
+                        <div className="iptv-browse-search sidebar-section">
+                            <div className="iptv-browse-search-row">
+                                <button
+                                    type="button"
+                                    className="iptv-browse-clear-btn"
+                                    onClick={clearFilters}
+                                    disabled={currentCategory === 'All' && !searchTerm}
+                                >
+                                    Reset
+                                </button>
+                                <label htmlFor={`search-input-${identifier}`} className="sr-only">Search Channels</label>
+                                <input
+                                    id={`search-input-${identifier}`}
+                                    type="text"
+                                    placeholder="Search channels..."
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="iptv-browse-search-input"
+                                    aria-label="Search IPTV Channels"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="iptv-browse-categories sidebar-section" role="listbox" aria-label="Channel categories">
+                            {uniqueCategories.map((category) => (
+                                <button
+                                    key={category}
+                                    type="button"
+                                    className={`iptv-browse-category-btn ${currentCategory === category ? 'active' : ''}`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        filterChannelsByCategory(category);
+                                    }}
+                                    aria-selected={currentCategory === category}
+                                    title={category}
+                                >
                                     {category}
-                                </option>
+                                </button>
                             ))}
-                        </select>
-                    </div>
+                        </div>
 
-                    <div className="iptv-search sidebar-section">
-                        <label htmlFor={`search-input-${identifier}`} className="sr-only">Search Channels</label>
-                        <input
-                            id={`search-input-${identifier}`}
-                            type="text"
-                            placeholder="Search channels..."
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            onClick={(e) => e.stopPropagation()}
-                            aria-label="Search IPTV Channels"
-                        />
+                        <div className="iptv-browse-resultsbar sidebar-section">
+                            <span className="iptv-browse-resultscount">{currentCategory === 'All' ? 'All categories' : currentCategory}</span>
+                            <span className="iptv-browse-resultscount">{filteredIptvChannels.length} channels</span>
+                        </div>
                     </div>
 
                     <div className="iptv-channel-list-wrapper sidebar-section">
                         <div className="iptv-channel-select">
                             {filteredIptvChannels.map((channel, index) => (
-                               
-                                //console.log(`Channel ${index}:`, channel), // "Logo" not null
                                 <button
                                     key={`${channel.id || index}-${channel.url || 'unknown'}`}
-                                    className={`iptv-channel-btn ${currentIptvChannel?.url === channel.url ? 'active' : ''}`}
+                                    className={`iptv-channel-card ${currentIptvChannel?.url === channel.url ? 'active' : ''}`}
                                     onClick={(e) => { e.stopPropagation(); changeIptvChannel(channel); }}
                                     title={channel.name}
                                 >
@@ -638,11 +595,14 @@ useEffect(() => {
                                             className="channel-logo-small"
                                             onError={(e) => {
                                                 console.error(`Failed to load image: ${channel.Logo}`, e);
-                                                e.target.style.display = 'none'; // Hide the image if it fails to load
+                                                e.target.style.display = 'none';
                                             }}
                                         />
                                     )}
-                                    <span className="channel-name">{channel.name}</span>
+                                    <div className="iptv-channel-card-copy">
+                                        <span className="channel-name">{channel.name}</span>
+                                        <span className="iptv-channel-card-meta">{channel.category || 'Unknown'}</span>
+                                    </div>
                                 </button>
                             ))}
                             {safeChannels.length > 0 && filteredIptvChannels.length === 0 && searchTerm && (

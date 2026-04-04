@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 import Grids from "./Grids";
 import { fetchAllChannels } from "./api";
 
@@ -119,6 +119,21 @@ function App() {
   const canAddScreen =
     screenCount < (gridLayout === "1x1" ? 1 : gridLayout === "2x2" ? 4 : 9);
 
+  const removeScreen = () => {
+    if (screenCount > 1) {
+      const lastSlot = screenCount - 1;
+      setSlots((prev) => {
+        const newSlots = { ...prev };
+        delete newSlots[lastSlot];
+        return newSlots;
+      });
+      setScreenCount(screenCount - 1);
+      if (selectedSlot === lastSlot) setSelectedSlot(null);
+    }
+  };
+
+  const canRemoveScreen = screenCount > 1;
+
   const handleSelect = (slotId, type, data) => {
     console.log("Selected Slot:", slotId, "Type:", type, "Data:", data);
     if (type === "iptv") {
@@ -135,27 +150,32 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen">
-      <Sidebar
+    <div className="tv-app">
+      <Navbar
         gridTypes={gridTypes}
         currentGrid={gridTypes.find((g) => g.id === gridLayout) || gridTypes[0]}
         changeGridType={changeGridType}
         addScreen={addScreen}
         canAddScreen={canAddScreen}
+        removeScreen={removeScreen}
+        canRemoveScreen={canRemoveScreen}
+        screenCount={screenCount}
       />
       {channelsLoaded ? (
         <Grids
           gridLayout={gridLayout}
           screenCount={screenCount}
           handleSelect={handleSelect}
+          allChannels={channels}
           slots={slots}
           selectedSlot={selectedSlot}
           setSelectedSlot={setSelectedSlot}
           handleAddScreenClick={addScreen}
         />
       ) : (
-        <div className="flex-1 flex items-center justify-center text-lg text-white bg-black">
-          Loading channels...
+        <div className="tv-app__loading">
+          <div className="tv-app__loading-spinner" />
+          <span>Loading channels&hellip;</span>
         </div>
       )}
     </div>

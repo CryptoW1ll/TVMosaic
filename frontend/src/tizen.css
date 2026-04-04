@@ -1,91 +1,83 @@
+/* tizen.css — legacy sidebar styles (kept for backward compat with IPTVPlayer internals) */
+
 .tizen-sidebar {
-  background: rgba(20, 20, 20, 0.9);
+  background: rgba(15, 15, 17, 0.96);
   color: white;
-  width: 10%; /* Adjusted to take up 20% of the screen width */
+  width: 220px;
   height: 100%;
-  padding: 20px;
-  font-family: 'Segoe UI', sans-serif;
+  padding: 16px 12px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
   position: fixed;
   top: 0;
   left: 0;
-  right: auto; /* Ensure the sidebar does not overlap the grid */
-  z-index: 100;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+  z-index: 200;
+  box-shadow: 2px 0 24px rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Ensures content is spaced out */
+  gap: 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.tizen-sidebar .grid-settings {
+.hamburger-row {
   display: flex;
-  flex-direction: column;
-  gap: 10px; /* Adds spacing between grid setting buttons */
-  margin-top: auto; /* Pushes grid settings to the bottom */
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.grid-types-row {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
 }
 
 .tizen-button {
-  background: rgba(60, 60, 60, 0.9);
-  color: white;
-  border: none;
-  margin-bottom: 12px;
-  padding: 22px; /* Uniform padding */
-  border-radius: 12px;
-  font-size: 18px;
-  width: 64px;
-  height: 64px;
-  transition: all 0.2s ease-in-out;
-  
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f7;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 48px;
+  height: 48px;
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center; /* optional */
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
-
-
 .tizen-button:hover {
-  background: #1d84ff;
-  transform: scale(1.02);
+  background: rgba(10, 132, 255, 0.18);
+  color: #0a84ff;
+  border-color: rgba(10, 132, 255, 0.4);
 }
-
 .tizen-button.active {
-  background: #1d84ff;
-  font-weight: bold;
+  background: rgba(10, 132, 255, 0.22);
+  color: #0a84ff;
+  border-color: rgba(10, 132, 255, 0.5);
 }
-
 .tizen-button.disabled {
-  background: #555;
-  color: #aaa;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
 .toggle-btn {
   position: fixed;
-  top: 16px;
-  left: 16px;
-  background: rgba(30, 30, 30, 0.9);
-  padding: 10px;
-  /* border-radius: 50%; */
-  color: white;
+  top: 10px;
+  left: 10px;
+  background: rgba(28, 28, 31, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  border-radius: 8px;
+  color: #f5f5f7;
   z-index: 999;
-  transition: background 0.2s ease-in-out;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
-
 .toggle-btn:hover {
-  background: rgba(60, 60, 60, 0.9);
+  background: rgba(50, 50, 55, 0.95);
 }
 
 body {
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-}
-
-.relative.flex-1 {
-  margin-left: 13%; /* Adjusted to match the sidebar width */
-  width: calc(100% - 13%); /* Ensure the grid takes up the remaining space */
-}
-
-/* .relative.flex-2 {
-  margin-left: 10%;
-  width: calc(100vw - 10%); 
   overflow-x: hidden;
-  margin-right: 1px;
-} */
+}
+

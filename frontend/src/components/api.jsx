@@ -2,6 +2,48 @@
 const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5125'}/api/Channel`;
 //const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/Channel`;
 
+function normalizeCategory(value) {
+  const cleaned = String(value ?? '').trim();
+  if (!cleaned) return 'General';
+  const lowered = cleaned.toLowerCase();
+  if (lowered === 'undefined' || lowered === 'null' || lowered === 'n/a') {
+    return 'General';
+  }
+  return cleaned;
+}
+
+function normalizeChannel(raw = {}) {
+  const channelId = raw.channelId ?? raw.ChannelId ?? raw.id ?? raw.Id ?? null;
+  const tvgId = raw.tvgId ?? raw.TvgId ?? '';
+  const name = raw.name ?? raw.Name ?? 'Unknown Channel';
+  const logo = raw.logo ?? raw.Logo ?? '';
+  const category = normalizeCategory(raw.category ?? raw.Category);
+  const url = raw.url ?? raw.Url ?? '';
+
+  // Keep both casing variants for backward compatibility with existing components.
+  return {
+    ...raw,
+    channelId,
+    ChannelId: channelId,
+    tvgId,
+    TvgId: tvgId,
+    name,
+    Name: name,
+    logo,
+    Logo: logo,
+    category,
+    Category: category,
+    url,
+    Url: url,
+  };
+}
+
+function normalizeChannelResponse(payload) {
+  if (Array.isArray(payload)) return payload.map(normalizeChannel);
+  if (payload && typeof payload === 'object') return normalizeChannel(payload);
+  return payload;
+}
+
 
 
 // Common fetch handler
@@ -37,20 +79,23 @@ async function handleRequest(url, options = {}) {
 
 // Fetch single channel
 export const fetchChannel = async (id) => {
-  return handleRequest(`${API_BASE_URL}/${id}`);
+  const data = await handleRequest(`${API_BASE_URL}/${id}`);
+  return normalizeChannelResponse(data);
 };
 
 // Fetch all channels
 export const fetchAllChannels = async () => {
-  return handleRequest(API_BASE_URL);
+  const data = await handleRequest(API_BASE_URL);
+  return normalizeChannelResponse(data);
 };
 
 // Example POST function
 export const createChannel = async (channelData) => {
-  return handleRequest(API_BASE_URL, {
+  const data = await handleRequest(API_BASE_URL, {
     method: 'POST',
     body: JSON.stringify(channelData)
   });
+  return normalizeChannelResponse(data);
 };
 
 // delete channel

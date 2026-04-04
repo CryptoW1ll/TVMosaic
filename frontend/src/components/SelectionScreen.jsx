@@ -144,49 +144,23 @@ const SelectionScreen = ({ onSelect }) => {
 
   // Render the selection screen by default
   return (
-    <div className="selection-screen bg-black h-full w-full flex flex-col items-center justify-center p-1">
-
-      {/* Selection buttons */}
-      {/* <div className="button-grid grid grid-cols-2 gap-4 w-full max-w-md"> */}
-      <div className="button-grid grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md mx-auto">
+    <div className="tv-selection">
+      <div className="tv-selection__inner">
+        <div className="tv-selection__icon-wrap">
+          <svg viewBox="0 0 48 48" fill="none" className="tv-selection__icon" aria-hidden="true">
+            <rect x="4" y="8" width="40" height="26" rx="3" stroke="currentColor" strokeWidth="2" />
+            <path d="M17 38h14M24 34v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="24" cy="21" r="6" stroke="currentColor" strokeWidth="2" />
+            <path d="M22 21l2.5 2 3.5-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+        <p className="tv-selection__label">No channel selected</p>
         <button
-          className="selection-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
+          className="tv-selection__btn"
           onClick={() => handleSelect('iptv')}
-              >
-          📺 IPTV Channels
-        </button>
-
-        {/* <button
-          className="selection-button bg-orange-400 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
-
-          onClick={() => handleSelect('plex')}
         >
-          📺 Plex
+          Browse Channels
         </button>
-
-        <button
-              className="selection-button bg-green-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
-
-          onClick={() => handleSelect('tvGarden')}
-        >
-          🌳 TV Garden
-        </button>
-
-        <button
-              className="selection-button bg-red-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
-
-          onClick={() => handleSelect('youtube')}
-        >
-          🎥 YouTube
-        </button>
-
-        <button
-              className="selection-button bg-purple-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors text-lg sm:text-xl"
-
-          onClick={() => handleSelect('jellyfin')}
-        >
-          🏠 Jellyfin
-        </button> */}
       </div>
     </div>
   );
