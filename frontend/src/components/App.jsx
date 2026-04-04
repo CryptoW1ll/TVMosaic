@@ -16,7 +16,7 @@ function App() {
   const [screenCount, setScreenCount] = useState(1);
   const [gridLayout, setGridLayout] = useState("3x3");
   const [slots, setSlots] = useState({});
-  const [selectedSlot, setSelectedSlot] = useState(0);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [channels, setChannels] = useState([]);
   const [channelsLoaded, setChannelsLoaded] = useState(false);
 
@@ -36,7 +36,7 @@ function App() {
         if (chs && chs.length > 0) {
           const randomChannel = getRandomChannel(chs);
           setSlots({ 0: { type: "iptv", data: randomChannel } });
-          setSelectedSlot(0);
+          setSelectedSlot(null);
         }
       } catch (e) {
         setChannelsLoaded(true);
@@ -48,7 +48,7 @@ function App() {
 
   useEffect(() => {
     // Reset selectedSlot to 0 if grid changes or channels reload
-    setSelectedSlot(0);
+    setSelectedSlot(null);
   }, [gridLayout, screenCount, channelsLoaded]);
 
   // Debug: Log slots whenever they change

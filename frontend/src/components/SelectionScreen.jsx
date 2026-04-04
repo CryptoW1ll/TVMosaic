@@ -12,7 +12,7 @@ const SelectionScreen = ({ onSelect }) => {
   // Player states
   const [currentView, setCurrentView] = useState('selection'); // 'selection' | 'iptv'
   const [currentChannel, setCurrentChannel] = useState(null);
-  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [audioEnabled, setAudioEnabled] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [slotId] = useState(1); // Could be made dynamic for multiple slots
   const [iptvChannels, setIptvChannels] = useState([]); // State to hold IPTV channels
@@ -103,6 +103,7 @@ const SelectionScreen = ({ onSelect }) => {
           isExpanded={isExpanded}
           hasAudio={audioEnabled}
           onToggleAudio={() => setAudioEnabled(!audioEnabled)}
+          muted={!audioEnabled}
           onToggleExpand={() => setIsExpanded(!isExpanded)}
           onClose={handleCloseIPTV}
           onChannelChange={setCurrentChannel}

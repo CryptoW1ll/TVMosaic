@@ -91,11 +91,11 @@ function Grids({ gridLayout, screenCount, handleSelect, slots, selectedSlot, set
           >
             {slots[index]?.type === "iptv" && slots[index]?.data && slots[index]?.data.url
             ? (<IPTVPlayer 
-                data={index === 0 ? { ...slots[index].data, channelId: undefined } : slots[index].data} // force random for player 0
-                channels={Object.values(slots).map(s => s.data).filter(c => c && c.url && c.channelId !== 29952)}
-                audioEnabled={selectedSlot === index} 
-                muted={selectedSlot !== index} 
-                onRequestUnmute={() => setSelectedSlot(selectedSlot === index ? null : index)}
+              data={index === 0 ? { ...slots[index].data, channelId: undefined } : slots[index].data} // force random for player 0
+              channels={Object.values(slots).map(s => s.data).filter(c => c && c.url && c.channelId !== 29952)}
+              hasAudio={selectedSlot === index}
+              muted={selectedSlot !== index}
+              onToggleAudio={() => setSelectedSlot(selectedSlot === index ? null : index)}
               />) 
             : (<SelectionScreen onSelect={(slotId, type, data) => handleSelect(index, type, data)} />)
             }

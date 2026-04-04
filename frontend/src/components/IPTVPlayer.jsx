@@ -358,6 +358,10 @@ useEffect(() => {
 
     const handleToggleAudio = (e) => {
         e.stopPropagation();
+        if (onToggleAudio) {
+            onToggleAudio();
+            return;
+        }
         if (onRequestUnmute) onRequestUnmute();
     };
 
@@ -404,9 +408,22 @@ useEffect(() => {
     const favouriteButtonDisabled = !currentIptvChannel || iptvLoading;
 
     useEffect(() => {
-        if (iptvVideoRef.current) {
-            iptvVideoRef.current.muted = muted;
+        const videoElement = iptvVideoRef.current;
+        if (!videoElement) return;
+
+        videoElement.defaultMuted = muted;
+        videoElement.muted = muted;
+        videoElement.volume = 1;
+
+        if (muted) {
+            videoElement.setAttribute('muted', '');
+            return;
         }
+
+        videoElement.removeAttribute('muted');
+        videoElement.play().catch((error) => {
+            console.warn('Playback resume after unmute was blocked', error);
+        });
     }, [muted]);
 
     return (
